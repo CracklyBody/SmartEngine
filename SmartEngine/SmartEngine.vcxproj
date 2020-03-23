@@ -145,6 +145,8 @@
     <ClCompile Include="Collisionplane.cpp" />
     <ClCompile Include="Collisionsphere.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Mesh.cpp" />
+    <ClCompile Include="Model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Collision.h" />
@@ -152,6 +154,8 @@
     <ClInclude Include="Collisionsphere.h" />
     <ClInclude Include="keycallback.h" />
     <ClInclude Include="log.h" />
+    <ClInclude Include="Mesh.h" />
+    <ClInclude Include="Model.h" />
     <ClInclude Include="mouseray.h" />
     <ClInclude Include="Shader.h" />
   </ItemGroup>
