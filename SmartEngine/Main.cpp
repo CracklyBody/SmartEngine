@@ -119,9 +119,9 @@ int main() {
     GLuint shader_programm = create_shader_program_from_files("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
 
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
-    glFrontFace(GL_CW);
+    //glEnable(GL_CULL_FACE);
+    //glCullFace(GL_BACK);
+    //glFrontFace(GL_CW);
 
     while (!glfwWindowShouldClose(window))
     {
