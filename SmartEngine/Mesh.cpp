@@ -52,7 +52,7 @@ void Mesh::Draw(Shader shader)
 				ss << specularNr++;
 		number = ss.str();
 
-		shader.setFloat(("material." + name + number).c_str(), i);
+		//shader.setFloat(("material." + name + number).c_str(), i);
 		glBindTexture(GL_TEXTURE_2D, textures[i].id);
 	}
 	glActiveTexture(GL_TEXTURE0);

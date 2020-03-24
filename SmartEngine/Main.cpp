@@ -46,12 +46,6 @@ int main() {
         return 1;
     }
 
-    // uncomment these lines if on Apple OS X
-    /*glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);*/
-
     GLFWwindow* window = glfwCreateWindow(WIDTH, HEIGHT, "Hello Triangle", NULL, NULL);
     if (!window) {
         fprintf(stderr, "ERROR: could not open window with GLFW3\n");
@@ -116,7 +110,7 @@ int main() {
         "void main() {"
         "  frag_colour = vec4(colour, 1.0);"
         "}";
-    GLuint shader_programm = create_shader_program_from_files("triangle.vert", "triangle.frag");
+    Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
 
     //glEnable(GL_CULL_FACE);
@@ -127,22 +121,22 @@ int main() {
     {
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glUseProgram(shader_programm);
+        shader.Use();
 
         glm::mat4 trans = glm::mat4(1.0f);
         //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
         //trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-        GLuint transformLoc = glGetUniformLocation(shader_programm, "trans");
+        GLuint transformLoc = glGetUniformLocation(shader.Program, "trans");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
 
         glm::mat4 view = glm::mat4(1.0f);
         view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-        GLuint viewLoc = glGetUniformLocation(shader_programm, "view");
+        GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
         glm::mat4 projection = glm::mat4(1.0f);
         projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
-        GLuint projectionLoc = glGetUniformLocation(shader_programm, "projection");
+        GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
         glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
         
         glBindVertexArray(vao);
