@@ -1,4 +1,6 @@
 #pragma once
+#ifndef MODEL_H
+#define MODEL_H
 #include <vector>
 #include <string>
 #include <assimp/Importer.hpp>
@@ -22,3 +24,4 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 };
+#endif

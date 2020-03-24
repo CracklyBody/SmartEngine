@@ -1,4 +1,6 @@
 #pragma once
+#ifndef SHADER_H
+#define SHADER_H
 #include <GL/glew.h>
 #include <iostream>
 #include <stdio.h>
@@ -6,6 +8,11 @@
 #include <assert.h>
 
 #define MAX_SHADER_SZ 100000
+
+class Shader
+{
+
+};
 
 GLuint create_shader_program_from_strings(const char* vertex_shader_str, const char* fragment_shader_str)
 {
@@ -117,3 +124,5 @@ GLuint create_shader_program_from_files(const char* vertex_shader_filename, cons
 	
 	return create_shader_program_from_strings(vs_shader_str, fs_shader_str);
 }
+
+#endif

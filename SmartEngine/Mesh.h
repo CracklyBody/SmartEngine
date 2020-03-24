@@ -1,4 +1,6 @@
 #pragma once
+#ifndef MESH_H
+#define MESH_H
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <sstream>
@@ -33,3 +35,4 @@ private:
 	unsigned int VAO, VBO, EBO;
 	void setupMesh();
 };
+#endif
