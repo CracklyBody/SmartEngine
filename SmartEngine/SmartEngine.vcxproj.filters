@@ -66,5 +66,7 @@
   <ItemGroup>
     <None Include="triangle.vert" />
     <None Include="triangle.frag" />
+    <None Include="model.frag" />
+    <None Include="model.vert" />
   </ItemGroup>
 </Project>

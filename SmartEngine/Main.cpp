@@ -8,7 +8,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "log.h"
-#include "Shader.h"
+#include "Model.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -112,7 +112,8 @@ int main() {
         "}";
     Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
-
+    Shader nanos("model.vert", "model.frag");
+    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
@@ -141,6 +142,14 @@ int main() {
         
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
+
+        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
+        nanos.Use();
+        nanos.setMat4("view", view);
+        nanos.setMat4("projection", projection);
+        nanos.setMat4("model", trans);
+        nanosuit.Draw(nanos);
         glfwPollEvents();
         glfwSwapBuffers(window);
 
