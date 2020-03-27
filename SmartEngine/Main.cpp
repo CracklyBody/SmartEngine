@@ -114,7 +114,7 @@ int main() {
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
     Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
-    Model wall((char*)"models/fallingwall/fallingwall.dae");
+    Model wall((char*)"models/fallingwall/swall.dae");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
@@ -154,7 +154,7 @@ int main() {
         nanos.setMat4("view", view);
         nanos.setMat4("projection", projection);
         nanos.setMat4("model", trans);
-        nanosuit.Draw(nanos);
+        //nanosuit.Draw(nanos);
         glfwPollEvents();
         glfwSwapBuffers(window);
 
