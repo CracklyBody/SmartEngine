@@ -9,21 +9,15 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "log.h"
 #include "Model.h"
+#include "Player.h"
 
 #define WIDTH 640
 #define HEIGHT 480
-
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 GLfloat lastX = WIDTH;
 GLfloat lastY = HEIGHT;
 GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
-void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 
 int main() {
 
@@ -58,10 +52,11 @@ int main() {
     glewExperimental = GL_TRUE;
     glewInit();
     log_gl_param();
-    
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
+
+    player.setupdayekey();
+    player.setupdatemouse();
     // get version info
     const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
     const GLubyte* version = glGetString(GL_VERSION); // version as a string
@@ -132,7 +127,7 @@ int main() {
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
 
         glm::mat4 view = glm::mat4(1.0f);
-        view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+        view = player.lookAt();
         GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
         glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
@@ -166,44 +161,4 @@ int main() {
     // close GL context and any other GLFW resources
     glfwTerminate();
     return 0;
-}
-
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
-{
-    GLfloat cameraSpeed = 0.05f;
-    if (key == GLFW_KEY_W)
-        cameraPos += cameraSpeed * cameraFront;
-    if (key == GLFW_KEY_S)
-        cameraPos -= cameraSpeed * cameraFront;
-    if (key == GLFW_KEY_A)
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if(key==GLFW_KEY_D)
-        cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
-}
-
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
-{
-    GLfloat xoffset = xpos - lastX;
-    GLfloat yoffset = lastY - ypos;
-    lastX = xpos;
-    lastY = ypos;
-
-    GLfloat sensitivity = 0.05f;
-    xoffset *= sensitivity;
-    yoffset *= sensitivity;
-
-    yaw += xoffset;
-    pitch += yoffset;
-
-    if (pitch > 89.0f)
-        pitch = 89.0f;
-    if (pitch < -89.0f)
-        pitch = -89.0f;
-
-    glm::vec3 front;
-    front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
-    front.y = sin(glm::radians(pitch));
-    front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    cameraFront = glm::normalize(front);
 }
