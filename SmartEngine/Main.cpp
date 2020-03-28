@@ -113,7 +113,7 @@ int main() {
     Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
-    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);

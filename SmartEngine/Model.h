@@ -21,6 +21,9 @@ private:
 	std::vector<Mesh> meshes;
 	std::string directory;
 	std::vector<Texture> texture_loaded;
+	aiMatrix4x4 Global_inverse_transform;
+	const aiScene* scene;
+	Assimp::Importer importer;
 	void loadModel(std::string path);
 	void processNode(aiNode* node, const aiScene* scene);
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);

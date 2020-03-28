@@ -2,8 +2,7 @@
 
 void Model::loadModel(std::string path)
 {
-	Assimp::Importer importer;
-	const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
+	scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs);
 
 	if (!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
 	{
@@ -11,6 +10,9 @@ void Model::loadModel(std::string path)
 		return;
 	}
 	directory = path.substr(0, path.find_last_of('/'));
+	
+	Global_inverse_transform = scene->mRootNode->mTransformation;
+	Global_inverse_transform.Inverse();
 
 	processNode(scene->mRootNode, scene);
 }
@@ -69,6 +71,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 	std::vector<Vertex> vertices;
 	std::vector<unsigned int> indices;
 	std::vector<Texture> textures;
+	std::vector<VertexBoneData> Bones;
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
@@ -110,7 +113,21 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		std::vector<Texture> specularMaps = loadMaterialTextures(material, aiTextureType_SPECULAR, "texture_specular");
 		textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());
 	}
-	return Mesh(vertices, indices, textures);
+
+	for (unsigned int i = 0; i < mesh->mNumBones; i++)
+	{
+		unsigned int BoneIndex = 0;
+		std::string BoneName(mesh->mBones[i]->mName.data);
+
+		for (unsigned int j = 0; j < mesh->mBones[i]->mNumWeights; j++)
+		{
+			unsigned int VertexID = mesh->mBones[i]->mWeights[j].mVertexId;
+			float Weight = mesh->mBones[i]->mWeights[j].mWeight;
+			//Bones.push_back()
+		}
+	}
+
+	return Mesh(vertices, indices, textures,scene);
 }
 
 

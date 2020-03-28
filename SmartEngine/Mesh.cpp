@@ -1,16 +1,25 @@
 #include "Mesh.h"
 
-Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures)
+Mesh::Mesh(std::vector<Vertex> vertices, std::vector<unsigned int> indices, std::vector<Texture> textures,const aiScene * pscene)
 {
 	this->vertices = vertices;
 	this->indices = indices;
 	this->textures = textures;
 
-	setupMesh();
+	setupMesh(pscene);
 }
 
-void Mesh::setupMesh()
+void Mesh::setupMesh(const aiScene* pscene)
 {
+	std::vector<VertexBoneData> Bones;
+	Bones.resize(vertices.size());
+	glBindBuffer(GL_ARRAY_BUFFER, BBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Bones[0]) * Bones.size(), &Bones[0], GL_STATIC_DRAW);
+	glEnableVertexAttribArray(3);
+	glVertexAttribIPointer(3, 4, GL_INT, sizeof(VertexBoneData), (const GLvoid*)0);
+	glEnableVertexAttribArray(4);
+	glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(VertexBoneData), (const GLvoid*)16);
+
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
 	glGenBuffers(1, &EBO);
