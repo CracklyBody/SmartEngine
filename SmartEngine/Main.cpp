@@ -108,7 +108,7 @@ int main() {
     Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
-    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
     //glEnable(GL_CULL_FACE);
@@ -123,7 +123,7 @@ int main() {
         shader.Use();
 
         glm::mat4 trans = glm::mat4(1.0f);
-        //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        //trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
         //trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
         GLuint transformLoc = glGetUniformLocation(shader.Program, "trans");
         glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
@@ -145,6 +145,7 @@ int main() {
         nanos.setMat4("projection", projection);
         nanos.setMat4("model", trans);
         wall.Draw(nanos);
+        wall.update();
         trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
         trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
         

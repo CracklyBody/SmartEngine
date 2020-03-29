@@ -1,4 +1,15 @@
 #include "Model.h"
+void Model::update()
+{
+	for (unsigned int i = 0; i < meshes.size(); i++)
+	{
+		for (unsigned int j = 0; j < meshes[i].vertices.size(); j++)
+		{
+			meshes[i].vertices[j].Position += moveVec;
+		}
+		meshes[i].setupMesh();
+	}
+}
 
 void Model::loadModel(std::string path)
 {
@@ -13,8 +24,10 @@ void Model::loadModel(std::string path)
 	directory = path.substr(0, path.find_last_of('/'));
 
 	processNode(scene->mRootNode, scene);
-}
 
+	zeroPoint = glm::vec3((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
+	radius = sqrtf((maxX - minX) * (maxX - minX) + (maxY - minY) * (maxY - minY) + (maxZ - minZ) * (maxZ - minZ))/2;
+}
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
 	for (unsigned int i = 0; i < node->mNumMeshes; i++)
@@ -72,6 +85,19 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 
 	for (unsigned int i = 0; i < mesh->mNumVertices; i++)
 	{
+		if (mesh->mVertices[i].x > maxX)
+			maxX = mesh->mVertices[i].x;
+		if (mesh->mVertices[i].x < minX)
+			minX = mesh->mVertices[i].x;
+		if (mesh->mVertices[i].y > maxY)
+			maxY = mesh->mVertices[i].y;
+		if (mesh->mVertices[i].y < minY)
+			minY = mesh->mVertices[i].y;
+		if (mesh->mVertices[i].z > maxZ)
+			maxZ = mesh->mVertices[i].z;
+		if (mesh->mVertices[i].z < minZ)
+			minZ = mesh->mVertices[i].z;
+
 		Vertex vertex;
 		glm::vec3 vector;
 		vector.x = mesh->mVertices[i].x;

@@ -17,7 +17,13 @@ public:
 		loadModel(path);
 	}
 	void Draw(Shader shader);
+	void update();
 private:
+	float radius;
+	float maxX=0.0f, minX=0.0f, maxY=0.0f, minY=0.0f, maxZ=0.0f, minZ=0.0f;
+	glm::vec3 moveVec = glm::vec3(0.0001f, 0.0001f, 0.0001f);
+	glm::vec3 zeroPoint;
+	std::vector<glm::vec3> collcube;	// collision cube
 	std::vector<Mesh> meshes;
 	std::string directory;
 	std::vector<Texture> texture_loaded;
