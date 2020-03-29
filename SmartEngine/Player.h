@@ -4,7 +4,6 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-
 class Player
 {
 public:
@@ -12,7 +11,7 @@ public:
 	~Player();
 	void setupdayekey();
 	void setupdatemouse();
-	void updatekey(int key, int scancode, int action, int mode);
+	void updatekey();
 	void updatemouse(double xpos, double ypos);
 	glm::mat4 lookAt();
 	GLFWwindow* window;
@@ -21,7 +20,7 @@ private:
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	bool freeze = false;
-	float cameraSpeed = 0.05f;
+	float cameraSpeed = 0.0005f;
 	float boostBar = 100.0f;
 	
 	GLfloat lastX = 640;
@@ -31,8 +30,8 @@ private:
 
 	static void updatekey(GLFWwindow* window, int key, int scancode, int action, int mode)
 	{
-		Player* player = (Player*)glfwGetWindowUserPointer(window);
-		player->updatekey(key, scancode, action, mode);
+		//Player* player = (Player*)glfwGetWindowUserPointer(window);
+		//player->updatekey(key, scancode, action, mode);
 	}
 	static void updatemouse(GLFWwindow* window, double xpos, double ypos)\
 	{

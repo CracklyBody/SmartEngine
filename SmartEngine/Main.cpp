@@ -110,12 +110,14 @@ int main() {
     Shader nanos("model.vert", "model.frag");
     Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
+    Model cube((char*)"models/cube/cube.obj");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
 
     while (!glfwWindowShouldClose(window))
     {
+        player.updatekey();
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();

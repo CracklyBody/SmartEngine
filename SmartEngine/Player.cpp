@@ -20,21 +20,21 @@ void Player::setupdatemouse()
     glfwSetCursorPosCallback(window, updatemouse);
 }
 
-void Player::updatekey(int key, int scancode, int action, int mode)
+void Player::updatekey()
 {
-    if (key == GLFW_KEY_W)
+    if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS)
         cameraPos += cameraSpeed * cameraFront;
-    if (key == GLFW_KEY_S)
-        cameraPos -= cameraSpeed * cameraFront;
-    if (key == GLFW_KEY_A)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (key == GLFW_KEY_D)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+        cameraPos -= cameraSpeed * cameraFront;
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-    if (key == GLFW_KEY_LEFT_SHIFT)
-    {
-        if(boostBar!=0.0f)
-        cameraSpeed += 0.05;
-    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+            if (boostBar != 0.0f)
+                cameraSpeed += 0.00001;
+    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(window, true);
 }
 
 glm::mat4 Player::lookAt()
