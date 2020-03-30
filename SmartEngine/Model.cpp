@@ -1,4 +1,92 @@
 #include "Model.h"
+
+std::vector<Plane> Model::getPlanes(Model* secondPh)
+{
+	std::vector<Plane> planes;
+	std::vector<glm::vec3> firstNormals = cubenormals;
+	std::vector<glm::vec3> secondNormals = secondPh->cubenormals;
+	Plane plane;
+	int size = firstNormals.size() + secondNormals.size();
+
+	for (int i = 0; i < size; i++)
+	{
+		plane = setPlane(plane, firstNormals, secondNormals,i);
+	}
+	return planes;
+}
+
+Plane swapXZ(Plane pl)
+{
+	glm::vec3 temp = pl.xAxis;
+	pl.xAxis = pl.zAxis;
+	pl.zAxis = temp;
+	return pl;
+}
+
+Plane Model::setPlane(Plane plane, std::vector<glm::vec3>firstNormals, std::vector<glm::vec3>secondNormals,int num)
+{
+	if (num < firstNormals.size())
+		plane = setFrom(firstNormals[num]);
+	else
+	{
+		num -= firstNormals.size();
+		plane = setFrom(secondNormals[num]);
+	}
+	plane = swapXZ(plane);	// XZ OR ZY?
+	return plane;
+}
+
+float getLenght(glm::vec3 vec)
+{
+	double powX = pow(vec.x, 2);
+	double powY = pow(vec.y, 2);
+	double powZ = pow(vec.z, 2);
+
+	return (float)sqrt(powX + powY + powZ);
+}
+
+glm::vec3 normalize(glm::vec3 vec)
+{
+	float lenght = getLenght(vec);
+
+	if (lenght == 0.0f)
+		return vec;
+	vec.x /= lenght;
+	vec.y /= lenght;
+	vec.z /= lenght;
+	return vec;
+}
+
+glm::vec3 cross(glm::vec3 value, glm::vec3 other)
+{
+	float result1 = value.y * other.z;
+	float result2 = -1 * value.z * other.y;
+	float result3 = -1 * value.x * other.z;
+	float result4 = value.z * other.x;
+	float result5 = value.x * other.y;
+	float result6 = -1 * value.y * other.x;
+	return glm::vec3(result1 + result2, result3 + result4, result5 + result6);
+}
+
+Plane Model::setFrom(glm::vec3 normal)
+{
+	Plane plane;
+
+	plane.zAxis = normal;
+	plane.xAxis = normal;
+	plane.xAxis = glm::vec3(-plane.xAxis.y,plane.xAxis.x,0);
+
+	plane.yAxis = normal;
+	plane.yAxis = cross(plane.yAxis, plane.xAxis);
+
+	plane.xAxis = normalize(plane.xAxis);
+	plane.yAxis = normalize(plane.yAxis);
+	plane.zAxis = normalize(plane.zAxis);
+
+	return plane;
+}
+
+
 void Model::update()
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
@@ -27,6 +115,44 @@ void Model::loadModel(std::string path)
 
 	zeroPoint = glm::vec3((maxX + minX) / 2, (maxY + minY) / 2, (maxZ + minZ) / 2);
 	radius = sqrtf((maxX - minX) * (maxX - minX) + (maxY - minY) * (maxY - minY) + (maxZ - minZ) * (maxZ - minZ))/2;
+	collcube[0] = glm::vec3(zeroPoint.x - radius, zeroPoint.y - radius, zeroPoint.z + radius);
+	collcube[1] = glm::vec3(zeroPoint.x + radius, zeroPoint.y - radius, zeroPoint.z + radius);
+	collcube[2] = glm::vec3(zeroPoint.x + radius, zeroPoint.y - radius, zeroPoint.z - radius);
+	collcube[3] = glm::vec3(zeroPoint.x - radius, zeroPoint.y - radius, zeroPoint.z - radius);
+	
+	collcube[4] = glm::vec3(zeroPoint.x - radius, zeroPoint.y + radius, zeroPoint.z + radius);
+	collcube[5] = glm::vec3(zeroPoint.x + radius, zeroPoint.y + radius, zeroPoint.z + radius);
+	collcube[6] = glm::vec3(zeroPoint.x + radius, zeroPoint.y + radius, zeroPoint.z - radius);
+	collcube[7] = glm::vec3(zeroPoint.x - radius, zeroPoint.y + radius, zeroPoint.z - radius);
+
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, 1.0f));
+	cubenormals.push_back ( glm::vec3(-1.0f, 0.0f, 0.0f));
+	cubenormals.push_back ( glm::vec3(0.0f, -1.0f, 0.0f));
+	cubenormals.push_back ( glm::vec3(1.0f, 0.0f, 0.0f));
+	cubenormals.push_back ( glm::vec3(0.0f, -1.0f, 0.0f));
+	cubenormals.push_back ( glm::vec3(0.0f, 0.0f, 1.0f));
+			   
+	cubenormals.push_back (glm::vec3(1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, -1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, -1.0f)); 
+	cubenormals.push_back (glm::vec3(-1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, -1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, -1.0f));	
+			   
+	cubenormals.push_back (glm::vec3(-1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, 1.0f));
+	cubenormals.push_back (glm::vec3(1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, 1.0f));
+			   
+	cubenormals.push_back (glm::vec3(1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, -1.0f));
+	cubenormals.push_back (glm::vec3(-1.0f, 0.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 1.0f, 0.0f));
+	cubenormals.push_back (glm::vec3(0.0f, 0.0f, -1.0f));
+
 }
 void Model::processNode(aiNode* node, const aiScene* scene)
 {

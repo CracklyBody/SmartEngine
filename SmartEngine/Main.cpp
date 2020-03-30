@@ -153,6 +153,7 @@ int main() {
         nanos.setMat4("projection", projection);
         nanos.setMat4("model", trans);
         //nanosuit.Draw(nanos);
+        //nanosuit.update();
         glfwPollEvents();
         glfwSwapBuffers(window);
 
