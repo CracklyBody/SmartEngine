@@ -6,7 +6,10 @@
 #include <stdio.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <bullet/btBulletDynamicsCommon.h>
 #include "log.h"
 #include "Model.h"
 #include "Player.h"
@@ -114,9 +117,54 @@ int main() {
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
+    glm::vec3 position = glm::vec3(0.3f, 0.5f, -1.0f);
+    glm::quat orientation = glm::normalize(glm::quat(glm::vec3(rand() % 360, rand() % 360, rand() % 360)));
+    // Start initialize Bullet
+    btBroadphaseInterface* broadphase = new btDbvtBroadphase();
+
+    btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
+    btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
+
+    btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
+    btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+    dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
+
+    std::vector<btRigidBody*> rigidbodies;
+
+    btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+    for (int i = 0; i < 1; i++)
+    {
+        btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), btVector3(position.x, position.y, position.z)));
+        
+        btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(10, motionState, boxCollisionShape, btVector3(1, 0, 0));
+        btRigidBody* rigidBody = new btRigidBody(rigidBodyCI);
+
+        rigidbodies.push_back(rigidBody);
+        dynamicsWorld->addRigidBody(rigidBody);
+
+        rigidBody->setUserPointer((void*)i);
+    }
+
+    double lastTime = glfwGetTime();
+    int nbFrames = 0;
 
     while (!glfwWindowShouldClose(window))
     {
+        btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
+        glm::vec3 v0 = position;
+
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0)
+        {
+            printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+        float deltaTime = currentTime - lastTime;
+
+        dynamicsWorld->stepSimulation(deltaTime,7);
+
         player.updatekey();
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -144,8 +192,8 @@ int main() {
         nanos.setMat4("view", view);
         nanos.setMat4("projection", projection);
         nanos.setMat4("model", trans);
-        wall.Draw(nanos);
-        wall.update();
+        //wall.Draw(nanos);
+        //wall.update();
         trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
         trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
         
@@ -154,6 +202,17 @@ int main() {
         nanos.setMat4("model", trans);
         //nanosuit.Draw(nanos);
         //nanosuit.update();
+        for (int i = 0; i < 1; i++)
+        {
+            glm::mat4 RotationMatrix = glm::toMat4(orientation);
+            glm::mat4 TranslationMatrix = glm::translate(glm::mat4(1.0f), position);
+            glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix;
+            nanos.setMat4("view", view);
+            nanos.setMat4("projection", projection);
+            nanos.setMat4("model", ModelMatrix);
+            cube.Draw(nanos);
+
+        }
         glfwPollEvents();
         glfwSwapBuffers(window);
 

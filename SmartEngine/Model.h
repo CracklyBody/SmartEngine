@@ -35,7 +35,7 @@ public:
 private:
 	float radius;
 	float maxX=0.0f, minX=0.0f, maxY=0.0f, minY=0.0f, maxZ=0.0f, minZ=0.0f;
-	glm::vec3 moveVec = glm::vec3(0.0001f, 0.0001f, 0.0001f);
+	glm::vec3 moveVec = glm::vec3(0.0000f, 0.0000f, 0.0000f);
 	glm::vec3 zeroPoint;
 	glm::vec3 collcube[8];	// collision cube
 	std::vector<glm::vec3> cubenormals;
