@@ -10,7 +10,7 @@ std::vector<Plane> Model::getPlanes(Model* secondPh)
 
 	for (int i = 0; i < size; i++)
 	{
-		plane = setPlane(plane, firstNormals, secondNormals,i);
+		//plane = setPlane(plane, firstNormals, secondNormals,i);
 	}
 	return planes;
 }
