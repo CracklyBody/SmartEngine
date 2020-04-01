@@ -132,11 +132,16 @@ int main() {
     std::vector<btRigidBody*> rigidbodies;
 
     btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
+    btScalar mass(1.f);
+    bool isDynamic = (mass != 0.f);
+    btVector3 localIntertia(1, 0, 0);
+    if (isDynamic)
+        boxCollisionShape->calculateLocalInertia(mass, localIntertia);
     for (int i = 0; i < 1; i++)
     {
         btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), btVector3(position.x, position.y, position.z)));
         
-        btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(10, motionState, boxCollisionShape, btVector3(1, 0, 0));
+        btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(100, motionState, boxCollisionShape, btVector3(10, 0, 0));
         btRigidBody* rigidBody = new btRigidBody(rigidBodyCI);
 
         rigidbodies.push_back(rigidBody);
@@ -158,6 +163,7 @@ int main() {
         if (currentTime - lastTime >= 1.0)
         {
             printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+            printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
             nbFrames = 0;
             lastTime += 1.0;
         }
@@ -206,6 +212,7 @@ int main() {
         {
             glm::mat4 RotationMatrix = glm::toMat4(orientation);
             glm::mat4 TranslationMatrix = glm::translate(glm::mat4(1.0f), position);
+            TranslationMatrix = glm::scale(TranslationMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
             glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix;
             nanos.setMat4("view", view);
             nanos.setMat4("projection", projection);
