@@ -151,6 +151,7 @@
     <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="Collisionplane.h" />
     <ClInclude Include="Collisionsphere.h" />

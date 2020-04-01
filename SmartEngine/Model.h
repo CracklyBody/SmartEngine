@@ -8,6 +8,7 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+#include <bullet/btBulletDynamicsCommon.h>
 #include "Mesh.h"
 #include <SOIL/stb_image_aug.h>
 
@@ -47,8 +48,6 @@ private:
 	Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 	std::vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, std::string typeName);
 };
-
-
 
 
 #endif

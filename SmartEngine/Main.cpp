@@ -13,6 +13,7 @@
 #include "log.h"
 #include "Model.h"
 #include "Player.h"
+#include "BulletSamples.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -138,7 +139,7 @@ int main() {
     if (isDynamic)
         boxCollisionShape->calculateLocalInertia(mass, localIntertia);
     for (int i = 0; i < 1; i++)
-    {
+    {/*
         btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), btVector3(position.x, position.y, position.z)));
         
         btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(100, motionState, boxCollisionShape, btVector3(10, 0, 0));
@@ -147,79 +148,110 @@ int main() {
         rigidbodies.push_back(rigidBody);
         dynamicsWorld->addRigidBody(rigidBody);
 
-        rigidBody->setUserPointer((void*)i);
+        rigidBody->setUserPointer((void*)i);*/
     }
-
+    btTransform t;
+    t.setIdentity();
+    t.setOrigin(btVector3(0,0,0));
+    btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0),0);
+    btMotionState* motion = new btDefaultMotionState(t);
+    btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
+    btRigidBody* body = new btRigidBody(info);
+    dynamicsWorld->addRigidBody(body);
+    btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
+    spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
+    btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -20.f, 1.f, dynamicsWorld);
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
     while (!glfwWindowShouldClose(window))
     {
-        btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
-        glm::vec3 v0 = position;
+        //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
+        //glm::vec3 v0 = position;
+        dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
         double currentTime = glfwGetTime();
         nbFrames++;
         if (currentTime - lastTime >= 1.0)
         {
             printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-            printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
+           // printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
             nbFrames = 0;
             lastTime += 1.0;
         }
         float deltaTime = currentTime - lastTime;
 
-        dynamicsWorld->stepSimulation(deltaTime,7);
 
         player.updatekey();
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
 
-        glm::mat4 trans = glm::mat4(1.0f);
-        //trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
-        //trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-        GLuint transformLoc = glGetUniformLocation(shader.Program, "trans");
-        glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
+        //glm::mat4 trans = glm::mat4(1.0f);
+        ////trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
+        ////trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+        //GLuint transformLoc = glGetUniformLocation(shader.Program, "trans");
+        //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
 
-        glm::mat4 view = glm::mat4(1.0f);
-        view = player.lookAt();
-        GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
+        //glm::mat4 view = glm::mat4(1.0f);
+        //view = player.lookAt();
+        //GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
+        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
 
-        glm::mat4 projection = glm::mat4(1.0f);
-        projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
-        GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
-        glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-        
-        glBindVertexArray(vao);
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-        nanos.Use();
-        nanos.setMat4("view", view);
-        nanos.setMat4("projection", projection);
-        nanos.setMat4("model", trans);
-        //wall.Draw(nanos);
-        //wall.update();
-        trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
-        
-        nanos.setMat4("view", view);
-        nanos.setMat4("projection", projection);
-        nanos.setMat4("model", trans);
-        //nanosuit.Draw(nanos);
-        //nanosuit.update();
-        for (int i = 0; i < 1; i++)
+        //glm::mat4 projection = glm::mat4(1.0f);
+        //projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f);
+        //GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
+        //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
+        //
+        //glBindVertexArray(vao);
+        //glDrawArrays(GL_TRIANGLES, 0, 3);
+        //nanos.Use();
+        //nanos.setMat4("view", view);
+        //nanos.setMat4("projection", projection);
+        //nanos.setMat4("model", trans);
+        ////wall.Draw(nanos);
+        ////wall.update();
+        //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
+        //trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
+        //
+        //nanos.setMat4("view", view);
+        //nanos.setMat4("projection", projection);
+        //nanos.setMat4("model", trans);
+        ////nanosuit.Draw(nanos);
+        ////nanosuit.update();
+        //for (int i = 0; i < 1; i++)
+        //{
+        //    glm::mat4 RotationMatrix = glm::toMat4(orientation);
+        //    glm::mat4 TranslationMatrix = glm::translate(glm::mat4(1.0f), position);
+        //    TranslationMatrix = glm::scale(TranslationMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
+        //    glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix;
+        //    nanos.setMat4("view", view);
+        //    nanos.setMat4("projection", projection);
+        //    nanos.setMat4("model", ModelMatrix);
+        //    //cube.Draw(nanos);
+
+        //}
+        //renderPlane(body);
+        renderSphere(spher, &cube, nanos, &player);
+        renderBox(box, &shader, &player);
+        //print positions of all objects
+        for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {
-            glm::mat4 RotationMatrix = glm::toMat4(orientation);
-            glm::mat4 TranslationMatrix = glm::translate(glm::mat4(1.0f), position);
-            TranslationMatrix = glm::scale(TranslationMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
-            glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix;
-            nanos.setMat4("view", view);
-            nanos.setMat4("projection", projection);
-            nanos.setMat4("model", ModelMatrix);
-            cube.Draw(nanos);
-
+            btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+            btRigidBody* body = btRigidBody::upcast(obj);
+            btTransform trans;
+            if (body && body->getMotionState())
+            {
+                body->getMotionState()->getWorldTransform(trans);
+            }
+            else
+            {
+                trans = obj->getWorldTransform();
+            }
+            printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
         }
+        //btVector3 p0 = spher->getCenterOfMassPosition();
+        //printf("%f %f %f\n", p0.x(), p0.y(), p0.z());
         glfwPollEvents();
         glfwSwapBuffers(window);
 
@@ -229,6 +261,10 @@ int main() {
         }
     }
     // close GL context and any other GLFW resources
+    delete dynamicsWorld;
+    delete collisionConfiguration;
+    delete dispatcher;
+    delete solver;
     glfwTerminate();
     return 0;
 }
