@@ -11,6 +11,18 @@
 #include "Model.h"
 #include "Player.h"
 
+struct bulletObject
+{
+    int id;
+    float r, g, b;
+    bool hit;
+    btRigidBody* body;
+    bulletObject(btRigidBody* b,int i, float r0, float g0, float b0) : body(b),id(i), r(r0), g(g0), b(b0), hit(false)
+    {
+
+    }
+};
+
 btRigidBody* addBox(float width, float height, float depth, float x, float y, float z,float mass, btDiscreteDynamicsWorld* dynamicsWorld)
 {
     btTransform t;
