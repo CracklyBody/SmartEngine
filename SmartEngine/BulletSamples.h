@@ -145,8 +145,7 @@ void renderBox(btRigidBody* sphere, Shader * shader, Player* player)
 
 void renderSphere(btRigidBody* sphere, Model* model, Shader shader, Player* player)
 {
-    if (sphere->getCollisionShape()->getShapeType() != SPHERE_SHAPE_PROXYTYPE)
-        return;
+    
     glColor3f(1, 0, 0);
     float r = ((btSphereShape*)sphere->getCollisionShape())->getRadius();
     btTransform t;
@@ -162,7 +161,7 @@ void renderSphere(btRigidBody* sphere, Model* model, Shader shader, Player* play
     shader.setMat4("view", view);
     shader.setMat4("projection", projection);
     shader.setMat4("model", tr);
-    model->Draw(shader);
+    //model->Draw(shader);
     //glPushMatrix();
     //glMultMatrixf(mat);	// translation, rotation
     //glBegin(GL_QUADS);

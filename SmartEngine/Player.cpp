@@ -20,6 +20,16 @@ void Player::setupdatemouse()
     glfwSetCursorPosCallback(window, updatemouse);
 }
 
+glm::vec3 Player::getCameraPos()
+{
+    return cameraPos;
+}
+
+glm::vec3 Player::getCameraLook()
+{
+    return cameraFront;
+}
+
 void Player::updatekey()
 {
     if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS)

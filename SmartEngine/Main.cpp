@@ -36,6 +36,8 @@ int main() {
         0.0f, 0.0f,  1.0f
     };
 
+    std::vector<btRigidBody*> bodies;
+
     gl_log("starting GLFW\n%s\n", glfwGetVersionString());
     glfwSetErrorCallback(glfw_error_callback);
     // start GL context and O/S window using the GLFW helper library
@@ -160,7 +162,9 @@ int main() {
     dynamicsWorld->addRigidBody(body);
     btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
     spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
-    btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -20.f, 1.f, dynamicsWorld);
+    btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -1.f, 1.f, dynamicsWorld);
+    btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
+    bodies.push_back(cube1);
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
@@ -186,7 +190,13 @@ int main() {
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
-
+        if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        {
+            btRigidBody* cube2 = addBox(2.f, 2.f, 2.f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 1.f, dynamicsWorld);
+            glm::vec3 look = player.getCameraLook();
+            cube2->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
+            bodies.push_back(cube2);
+        }
         //glm::mat4 trans = glm::mat4(1.0f);
         ////trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
         ////trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -233,7 +243,17 @@ int main() {
         //}
         //renderPlane(body);
         renderSphere(spher, &cube, nanos, &player);
-        renderBox(box, &shader, &player);
+        //renderBox(box, &shader, &player);
+        for (int i = 0; i < bodies.size(); i++)
+        {
+            if (bodies[i]->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
+                renderSphere(bodies[i], &cube, nanos, &player);
+            if (bodies[i]->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
+                cube.Draw(bodies[i], nanos, &player);
+            if (bodies[i]->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
+                renderPlane(bodies[i]);
+        }
+
         //print positions of all objects
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {
@@ -248,7 +268,11 @@ int main() {
             {
                 trans = obj->getWorldTransform();
             }
-            printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+            //if (currentTime - lastTime >= 1.0)
+            {
+                printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+
+            }
         }
         //btVector3 p0 = spher->getCenterOfMassPosition();
         //printf("%f %f %f\n", p0.x(), p0.y(), p0.z());

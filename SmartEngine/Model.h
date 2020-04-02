@@ -10,6 +10,7 @@
 #include <assimp/postprocess.h>
 #include <bullet/btBulletDynamicsCommon.h>
 #include "Mesh.h"
+#include "Player.h"
 #include <SOIL/stb_image_aug.h>
 
 struct Plane {
@@ -25,7 +26,7 @@ public:
 	{
 		loadModel(path);
 	}
-	void Draw(Shader shader);
+	void Draw(btRigidBody* sphere, Shader shader, Player* player);
 	void update();
 
 	std::vector<glm::vec2> getConvexHull();

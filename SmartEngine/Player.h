@@ -13,6 +13,8 @@ public:
 	void setupdatemouse();
 	void updatekey();
 	void updatemouse(double xpos, double ypos);
+	glm::vec3 getCameraPos();
+	glm::vec3 getCameraLook();
 	glm::mat4 lookAt();
 	GLFWwindow* window;
 private:
@@ -20,7 +22,7 @@ private:
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	bool freeze = false;
-	float cameraSpeed = 0.0005f;
+	float cameraSpeed = 0.5f;
 	float boostBar = 100.0f;
 	
 	GLfloat lastX = 640;

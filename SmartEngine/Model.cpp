@@ -296,8 +296,22 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(btRigidBody* sphere, Shader shader, Player* player)
 {
+	btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+	btTransform t;
+	sphere->getMotionState()->getWorldTransform(t);
+	float mat[16];
+	t.getOpenGLMatrix(mat);
+	shader.Use();
+	glm::mat4 trans = glm::make_mat4(mat);
+	glm::mat4 view = glm::mat4(1.0f);
+	view = player->lookAt();
+	shader.setMat4("view", view);
+	glm::mat4 projection = glm::mat4(1.0f);
+	projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+	shader.setMat4("projection", projection);
+	shader.setMat4("model", trans);
 	for (unsigned int i = 0; i < meshes.size(); i++)
 	{
 		meshes[i].Draw(shader);
