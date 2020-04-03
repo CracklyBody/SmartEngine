@@ -80,5 +80,7 @@
     <None Include="triangle.frag" />
     <None Include="model.frag" />
     <None Include="model.vert" />
+    <None Include="cube.vert" />
+    <None Include="cube.frag" />
   </ItemGroup>
 </Project>

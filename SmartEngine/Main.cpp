@@ -13,7 +13,6 @@
 #include "log.h"
 #include "Model.h"
 #include "Player.h"
-#include "BulletSamples.h"
 #include "Bulletcallback.h"
 
 #define WIDTH 640
@@ -23,6 +22,7 @@ GLfloat lastX = WIDTH;
 GLfloat lastY = HEIGHT;
 GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
+int count = 0;
 
 int main() {
 
@@ -36,7 +36,6 @@ int main() {
         0.0f, 1.0f,  0.0f,
         0.0f, 0.0f,  1.0f
     };
-    gContactAddedCallback = (ContactAddedCallback)callbackFunc;
     std::vector<bulletObject*> bodies;
 
     gl_log("starting GLFW\n%s\n", glfwGetVersionString());
@@ -115,6 +114,7 @@ int main() {
     Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
+    Shader cubes("cube.vert", "cube.frag");
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
@@ -153,6 +153,7 @@ int main() {
 
         rigidBody->setUserPointer((void*)i);*/
     }
+    gContactAddedCallback = callbackFunc;
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0,0,0));
@@ -164,18 +165,25 @@ int main() {
     btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
     spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
     //btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -1.f, 1.f, dynamicsWorld);
-    //btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
-    //bodies.push_back(cube1);
+    btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
+    bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
     while (!glfwWindowShouldClose(window))
     {
+        for (int i = 0; i < bodies.size(); i++)
+        {
+            if(bodies[i]->hit==true)
+            bodies[i]->hit = false;
+        }
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
         dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
         if (raycallback.hasHit())
         {
-            raycallback.m_collisionObject->getUserPointer();
+            bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
+            if(ob1!=NULL)
+                ob1->hit = true;
         }
         //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
         //glm::vec3 v0 = position;
@@ -203,7 +211,12 @@ int main() {
             glm::vec3 look = player.getCameraLook();
             cube2->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
             cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-            bodies.push_back(new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0));
+            bulletObject *cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
+            bodies.push_back(cubee);
+            cube2->setUserPointer(bodies[bodies.size()-1]);
+            count++;
+            //cubee->body->setUserPointer((void*)(bodies.size()-1));
+
         }
         //glm::mat4 trans = glm::mat4(1.0f);
         ////trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
@@ -257,7 +270,7 @@ int main() {
             if (bodies[i]->body->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
                 renderSphere(bodies[i]->body, &cube, nanos, &player);
             if (bodies[i]->body->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
-                cube.Draw(bodies[i]->body, nanos, &player);
+                cube.Draw(bodies[i], cubes, &player);
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);
         }
@@ -293,6 +306,16 @@ int main() {
         }
     }
     // close GL context and any other GLFW resources
+    for (int i = 0; i < bodies.size(); i++)
+    {
+        dynamicsWorld->removeCollisionObject(bodies[i]->body);
+        btMotionState* motionState = bodies[i]->body->getMotionState();
+        btCollisionShape* shape = bodies[i]->body->getCollisionShape();
+        delete bodies[i]->body;
+        delete shape;
+        delete motionState;
+        delete bodies[i];
+    }
     delete dynamicsWorld;
     delete collisionConfiguration;
     delete dispatcher;

@@ -296,8 +296,9 @@ std::vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType 
 	return textures;
 }
 
-void Model::Draw(btRigidBody* sphere, Shader shader, Player* player)
+void Model::Draw(bulletObject* obj, Shader shader, Player* player)
 {
+	btRigidBody* sphere = obj->body;
 	btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
 	btTransform t;
 	sphere->getMotionState()->getWorldTransform(t);
@@ -306,6 +307,10 @@ void Model::Draw(btRigidBody* sphere, Shader shader, Player* player)
 	shader.Use();
 	glm::mat4 trans = glm::make_mat4(mat);
 	glm::mat4 view = glm::mat4(1.0f);
+	if (obj->hit == true)
+		shader.setVec3("color", glm::vec3(0.0, 1.0, 0.0));
+	else
+		shader.setVec3("color", glm::vec3(0.0, 0.0, 1.0));
 	view = player->lookAt();
 	shader.setMat4("view", view);
 	glm::mat4 projection = glm::mat4(1.0f);

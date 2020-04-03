@@ -7,9 +7,10 @@ out vec3 colour;
 uniform mat4 trans;
 uniform mat4 view;
 uniform mat4 projection;
+uniform vec3 color = vec3(1.0,0.0,0.0);
 
 void main()
 {
-    colour = vec3(1.0,0.0,0.0);
+    colour = color;
     gl_Position = projection * view * trans * vec4(vertex_position.x,vertex_position.y,vertex_position.z, 1.0);
 };

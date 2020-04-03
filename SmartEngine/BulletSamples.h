@@ -1,4 +1,8 @@
 #pragma once
+#ifndef BULLETSAMPLES_H
+#define BULLETSAMPLES_H
+
+
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <stdio.h>
@@ -11,17 +15,7 @@
 #include "Model.h"
 #include "Player.h"
 
-struct bulletObject
-{
-    int id;
-    float r, g, b;
-    bool hit;
-    btRigidBody* body;
-    bulletObject(btRigidBody* b,int i, float r0, float g0, float b0) : body(b),id(i), r(r0), g(g0), b(b0), hit(false)
-    {
 
-    }
-};
 
 btRigidBody* addBox(float width, float height, float depth, float x, float y, float z,float mass, btDiscreteDynamicsWorld* dynamicsWorld)
 {
@@ -55,8 +49,9 @@ btRigidBody* addSphere(float rad, float x, float y, float z, float mass, btDiscr
     return body;
 }
 
-void renderBox(btRigidBody* sphere, Shader * shader, Player* player)
+void renderBox(bulletObject* obj, Shader * shader, Player* player)
 {
+    btRigidBody* sphere = obj->body;
     glColor3f(1, 0, 0);
     btVector3 extent  = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
     btTransform t;
@@ -114,6 +109,10 @@ void renderBox(btRigidBody* sphere, Shader * shader, Player* player)
         0.0f, 1.0f,  0.0f,
         0.0f, 0.0f,  1.0f
     };
+    if (obj->hit == true)
+        shader->setVec3("color", glm::vec3(0.0, 1.0, 0.0));
+    else
+        shader->setVec3("color", glm::vec3(0.0, 0.0, 1.0));
     GLuint points_vbo = 0;
     glGenBuffers(1, &points_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, points_vbo);
@@ -141,6 +140,8 @@ void renderBox(btRigidBody* sphere, Shader * shader, Player* player)
     GLuint projectionLoc = glGetUniformLocation(shader->Program, "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
     glBindVertexArray(vao);
+
+
     glDrawArrays(GL_TRIANGLES, 0, 36);
 
     //glm::mat4 tr = glm::make_mat4(mat); // translation, rotation
@@ -209,3 +210,4 @@ void renderPlane(btRigidBody* sphere)
     glEnd();
     glPopMatrix();
 }
+#endif // !BULLETSAMPLES_H

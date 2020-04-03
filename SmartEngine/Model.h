@@ -19,6 +19,18 @@ struct Plane {
 	glm::vec3 zAxis;
 };
 
+struct bulletObject
+{
+	int id;
+	float r, g, b;
+	bool hit;
+	btRigidBody* body;
+	bulletObject(btRigidBody* b, int i, float r0, float g0, float b0) : body(b), id(i), r(r0), g(g0), b(b0), hit(false)
+	{
+
+	}
+};
+
 class Model
 {
 public:
@@ -26,7 +38,7 @@ public:
 	{
 		loadModel(path);
 	}
-	void Draw(btRigidBody* sphere, Shader shader, Player* player);
+	void Draw(bulletObject* obj, Shader shader, Player* player);
 	void update();
 
 	std::vector<glm::vec2> getConvexHull();
