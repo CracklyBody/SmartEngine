@@ -309,6 +309,8 @@ int main() {
                 cubes.setMat4("model", trans);
                 cubes.setVec3("objectcolour",glm::vec3(1.0f, 0.5f, 0.31f));
                 cubes.setVec3("lightcolour",light1.lightcolour);
+                cubes.setVec3("lightPos", light1.lightspos);
+                cubes.setVec3("viewPos", player.getCameraPos());
                 cube.Draw(cubes);
 
             }
