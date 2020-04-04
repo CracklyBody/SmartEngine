@@ -145,6 +145,7 @@
   <ItemGroup>
     <ClCompile Include="Collisionplane.cpp" />
     <ClCompile Include="Collisionsphere.cpp" />
+    <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
@@ -158,6 +159,7 @@
     <ClInclude Include="Collisionplane.h" />
     <ClInclude Include="Collisionsphere.h" />
     <ClInclude Include="keycallback.h" />
+    <ClInclude Include="Light.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
@@ -168,6 +170,8 @@
   <ItemGroup>
     <None Include="cube.frag" />
     <None Include="cube.vert" />
+    <None Include="lightcube.frag" />
+    <None Include="lightcube.vert" />
     <None Include="model.frag" />
     <None Include="model.vert" />
     <None Include="triangle.frag" />

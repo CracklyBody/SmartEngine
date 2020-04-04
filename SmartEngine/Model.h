@@ -38,7 +38,7 @@ public:
 	{
 		loadModel(path);
 	}
-	void Draw(bulletObject* obj, Shader shader, Player* player);
+	virtual void Draw(Shader shader);
 	void update();
 
 	std::vector<glm::vec2> getConvexHull();
@@ -46,7 +46,8 @@ public:
 	std::vector<Plane> getPlanes(Model* secondPh);
 	Plane setPlane(Plane plane, std::vector<glm::vec3>firstNormals, std::vector<glm::vec3>secondNormals,int num);
 	Plane setFrom(glm::vec3 normal);
-private:
+	glm::vec3 pos = glm::vec3(0.0, 0.0, -2.0);
+protected:
 	float radius;
 	float maxX=0.0f, minX=0.0f, maxY=0.0f, minY=0.0f, maxZ=0.0f, minZ=0.0f;
 	glm::vec3 moveVec = glm::vec3(0.0000f, 0.0000f, 0.0000f);

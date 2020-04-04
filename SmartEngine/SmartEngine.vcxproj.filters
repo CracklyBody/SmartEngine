@@ -36,6 +36,9 @@
     <ClCompile Include="Player.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h">
@@ -74,6 +77,9 @@
     <ClInclude Include="Bulletcallback.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.vert" />
@@ -82,5 +88,7 @@
     <None Include="model.vert" />
     <None Include="cube.vert" />
     <None Include="cube.frag" />
+    <None Include="lightcube.frag" />
+    <None Include="lightcube.vert" />
   </ItemGroup>
 </Project>

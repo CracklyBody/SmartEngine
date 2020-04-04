@@ -14,6 +14,7 @@
 #include "Model.h"
 #include "Player.h"
 #include "Bulletcallback.h"
+#include "Light.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -115,9 +116,12 @@ int main() {
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
     Shader cubes("cube.vert", "cube.frag");
+    Shader slight("lightcube.vert", "lightcube.frag");
+
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
+    Light light1((char*)"models/cube/cube.obj");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
@@ -169,6 +173,12 @@ int main() {
     bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
     double lastTime = glfwGetTime();
     int nbFrames = 0;
+
+    btRigidBody* lightc = addBox(2.f, 2.f, 2.f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 1.f, dynamicsWorld);
+    glm::vec3 look = player.getCameraLook();
+    lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
+    lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+    bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
 
     while (!glfwWindowShouldClose(window))
     {
@@ -267,14 +277,54 @@ int main() {
         //renderBox(box, &shader, &player);
         for (int i = 0; i < bodies.size(); i++)
         {
+            if (i == 1)
+            {
+                slight.Use();
+                slight.setVec3("objectcolour", glm::vec3(1.0, 0.0, 0.0));
+                slight.setVec3("lightcolour", glm::vec3(1.0, 1.0, 1.0));
+                //cube.Draw(bodies[1], slight, &player);
+            }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
                 renderSphere(bodies[i]->body, &cube, nanos, &player);
             if (bodies[i]->body->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
-                cube.Draw(bodies[i], cubes, &player);
+            {
+                btRigidBody* sphere = bodies[i]->body;
+                btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+                btTransform t;
+                sphere->getMotionState()->getWorldTransform(t);
+                float mat[16];
+                t.getOpenGLMatrix(mat);
+                cubes.Use();
+                glm::mat4 trans = glm::make_mat4(mat);
+                glm::mat4 view = glm::mat4(1.0f);
+                if (bodies[i]->hit == true)
+                    cubes.setVec3("color", glm::vec3(0.0, 1.0, 0.0));
+                else
+                    cubes.setVec3("color", glm::vec3(0.0, 0.0, 1.0));
+                view = player.lookAt();
+                cubes.setMat4("view", view);
+                glm::mat4 projection = glm::mat4(1.0f);
+                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+                cubes.setMat4("projection", projection);
+                cubes.setMat4("model", trans);
+                cubes.setVec3("objectcolour",glm::vec3(1.0f, 0.5f, 0.31f));
+                cubes.setVec3("lightcolour",light1.lightcolour);
+                cube.Draw(cubes);
+
+            }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);
         }
-
+        slight.Use();
+        glm::mat4 trans = glm::mat4(1.0);
+        glm::mat4 view = glm::mat4(1.0f);
+        view = player.lookAt();
+        slight.setMat4("view", view);
+        glm::mat4 projection = glm::mat4(1.0f);
+        projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+        slight.setMat4("projection", projection);
+        slight.setMat4("model", trans);
+        light1.Draw(slight);
         //print positions of all objects
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {
