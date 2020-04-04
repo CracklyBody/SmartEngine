@@ -47,6 +47,8 @@ public:
 	Plane setPlane(Plane plane, std::vector<glm::vec3>firstNormals, std::vector<glm::vec3>secondNormals,int num);
 	Plane setFrom(glm::vec3 normal);
 	glm::vec3 pos = glm::vec3(0.0, 0.0, -2.0);
+	std::vector<Mesh> meshes;
+
 protected:
 	float radius;
 	float maxX=0.0f, minX=0.0f, maxY=0.0f, minY=0.0f, maxZ=0.0f, minZ=0.0f;
@@ -54,7 +56,6 @@ protected:
 	glm::vec3 zeroPoint;
 	glm::vec3 collcube[8];	// collision cube
 	std::vector<glm::vec3> cubenormals;
-	std::vector<Mesh> meshes;
 	std::string directory;
 	std::vector<Texture> texture_loaded;
 	void loadModel(std::string path);

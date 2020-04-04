@@ -121,6 +121,10 @@ int main() {
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
+    for(int i=0;i<cube.meshes[0].vertices.size();i++)
+    {
+        std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
+    }
     Light light1((char*)"models/cube/cube.obj");
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
