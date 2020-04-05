@@ -118,7 +118,7 @@ int main() {
     Shader cubes("cube.vert", "cube.frag");
     Shader slight("lightcube.vert", "lightcube.frag");
 
-    //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
@@ -315,7 +315,7 @@ int main() {
                 cubes.setVec3("lightcolour",light1.lightcolour);
                 cubes.setVec3("lightPos", light1.lightspos);
                 cubes.setVec3("viewPos", player.getCameraPos());
-                cube.Draw(cubes);
+                nanosuit.Draw(cubes);
 
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
