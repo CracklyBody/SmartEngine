@@ -232,51 +232,6 @@ int main() {
             //cubee->body->setUserPointer((void*)(bodies.size()-1));
 
         }
-        //glm::mat4 trans = glm::mat4(1.0f);
-        ////trans = glm::translate(trans, glm::vec3(1.5f, -0.5f, 0.0f));
-        ////trans = glm::rotate(trans, 90.0f, glm::vec3(0.0f, 0.0f, 1.0f));
-        //GLuint transformLoc = glGetUniformLocation(shader.Program, "trans");
-        //glUniformMatrix4fv(transformLoc, 1, GL_FALSE, &trans[0][0]);
-
-        //glm::mat4 view = glm::mat4(1.0f);
-        //view = player.lookAt();
-        //GLuint viewLoc = glGetUniformLocation(shader.Program, "view");
-        //glUniformMatrix4fv(viewLoc, 1, GL_FALSE, &view[0][0]);
-
-        //glm::mat4 projection = glm::mat4(1.0f);
-        //projection = glm::perspective(45.0f, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 1000.0f);
-        //GLuint projectionLoc = glGetUniformLocation(shader.Program, "projection");
-        //glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
-        //
-        //glBindVertexArray(vao);
-        //glDrawArrays(GL_TRIANGLES, 0, 3);
-        //nanos.Use();
-        //nanos.setMat4("view", view);
-        //nanos.setMat4("projection", projection);
-        //nanos.setMat4("model", trans);
-        ////wall.Draw(nanos);
-        ////wall.update();
-        //trans = glm::translate(trans, glm::vec3(0.5f, -0.5f, 0.0f));
-        //trans = glm::scale(trans, glm::vec3(0.2f, 0.2f, 0.2f));
-        //
-        //nanos.setMat4("view", view);
-        //nanos.setMat4("projection", projection);
-        //nanos.setMat4("model", trans);
-        ////nanosuit.Draw(nanos);
-        ////nanosuit.update();
-        //for (int i = 0; i < 1; i++)
-        //{
-        //    glm::mat4 RotationMatrix = glm::toMat4(orientation);
-        //    glm::mat4 TranslationMatrix = glm::translate(glm::mat4(1.0f), position);
-        //    TranslationMatrix = glm::scale(TranslationMatrix, glm::vec3(0.2f, 0.2f, 0.2f));
-        //    glm::mat4 ModelMatrix = TranslationMatrix * RotationMatrix;
-        //    nanos.setMat4("view", view);
-        //    nanos.setMat4("projection", projection);
-        //    nanos.setMat4("model", ModelMatrix);
-        //    //cube.Draw(nanos);
-
-        //}
-        //renderPlane(body);
         renderSphere(spher, &cube, nanos, &player);
         //renderBox(box, &shader, &player);
         for (int i = 0; i < bodies.size(); i++)
@@ -311,10 +266,56 @@ int main() {
                 projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
                 cubes.setMat4("projection", projection);
                 cubes.setMat4("model", trans);
-                cubes.setVec3("objectcolour",glm::vec3(1.0f, 0.5f, 0.31f));
+               /* cubes.setVec3("objectcolour",glm::vec3(1.0f, 0.5f, 0.31f));
                 cubes.setVec3("lightcolour",light1.lightcolour);
                 cubes.setVec3("lightPos", light1.lightspos);
                 cubes.setVec3("viewPos", player.getCameraPos());
+                cubes.setFloat("constant", 1.0f);
+                cubes.setFloat("linear", 0.09f);
+                cubes.setFloat("quadratic", 0.032f);*/
+
+                cubes.setInt("material.diffuse", 0);
+                cubes.setInt("material.specular", 1);
+                cubes.setVec3("viewPos", player.getCameraPos());
+                cubes.setFloat("material.shininess", 32.0f);
+                
+                // directional light
+                cubes.setVec3("dirlight.direction", -0.2f, -1.0f, -0.3f);
+                cubes.setVec3("dirlight.ambient", 0.05f, 0.05f, 0.05f);
+                cubes.setVec3("dirlight.diffuse", 0.4f, 0.4f, 0.4f);
+                cubes.setVec3("dirlight.specular", 0.5f, 0.5f, 0.5f);
+                
+                cubes.setVec3("pointLight[0].position", light1.lightspos);
+                cubes.setVec3("pointLight[0].ambient", 0.05f, 0.05f, 0.05f);
+                cubes.setVec3("pointLight[0].diffuse", 0.8f, 0.8f, 0.8f);
+                cubes.setVec3("pointLight[0].specular", 1.0f, 1.0f, 1.0f);
+                cubes.setFloat("pointLight[0].constant", 1.0f);
+                cubes.setFloat("pointLight[0].linear", 0.09);
+                cubes.setFloat("pointLight[0].quadratic", 0.032);
+                
+              /*  cubes.setVec3("pointLight[1].position", glm::vec3(2.3f, -3.3f, -4.0f));
+                cubes.setVec3("pointLight[1].ambient", 0.05f, 0.05f, 0.05f);
+                cubes.setVec3("pointLight[1].diffuse", 0.8f, 0.8f, 0.8f);
+                cubes.setVec3("pointLight[1].specular", 1.0f, 1.0f, 1.0f);
+                cubes.setFloat("pointLight[1].constant", 1.0f);
+                cubes.setFloat("pointLight[1].linear", 0.09);
+                cubes.setFloat("pointLight[1].quadratic", 0.032);
+                
+                cubes.setVec3("pointLight[2].position", glm::vec3(-4.0f, 2.0f, -12.0f));
+                cubes.setVec3("pointLight[2].ambient", 0.05f, 0.05f, 0.05f);
+                cubes.setVec3("pointLight[2].diffuse", 0.8f, 0.8f, 0.8f);
+                cubes.setVec3("pointLight[2].specular", 1.0f, 1.0f, 1.0f);
+                cubes.setFloat("pointLight[2].constant", 1.0f);
+                cubes.setFloat("pointLight[2].linear", 0.09);
+                cubes.setFloat("pointLight[2].quadratic", 0.032);
+                
+                cubes.setVec3("pointLight[3].position", glm::vec3(0.0f, 0.0f, -3.0f));
+                cubes.setVec3("pointLight[3].ambient", 0.05f, 0.05f, 0.05f);
+                cubes.setVec3("pointLight[3].diffuse", 0.8f, 0.8f, 0.8f);
+                cubes.setVec3("pointLight[3].specular", 1.0f, 1.0f, 1.0f);
+                cubes.setFloat("pointLight[3].constant", 1.0f);
+                cubes.setFloat("pointLight[3].linear", 0.09);
+                cubes.setFloat("pointLight[3].quadratic", 0.032);*/
                 nanosuit.Draw(cubes);
 
             }
