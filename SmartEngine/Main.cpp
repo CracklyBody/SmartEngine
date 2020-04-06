@@ -18,6 +18,7 @@
 
 #define WIDTH 640
 #define HEIGHT 480
+#define FPS 30
 
 GLfloat lastX = WIDTH;
 GLfloat lastY = HEIGHT;
@@ -183,9 +184,20 @@ int main() {
     lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
     lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
-
+    lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
+        double currentTime = glfwGetTime();
+        nbFrames++;
+        if (currentTime - lastTime >= 1.0)
+        {
+            printf("%f ms/frame\n", 1000.0 / double(nbFrames));
+            // printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
+            nbFrames = 0;
+            lastTime += 1.0;
+        }
+
+        float deltaTime = currentTime - lastTime;
         for (int i = 0; i < bodies.size(); i++)
         {
             if(bodies[i]->hit==true)
@@ -203,16 +215,7 @@ int main() {
         //glm::vec3 v0 = position;
         dynamicsWorld->stepSimulation(1.f / 60.f, 10);
 
-        double currentTime = glfwGetTime();
-        nbFrames++;
-        if (currentTime - lastTime >= 1.0)
-        {
-            printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-           // printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
-            nbFrames = 0;
-            lastTime += 1.0;
-        }
-        float deltaTime = currentTime - lastTime;
+        
 
 
         player.updatekey();
@@ -361,6 +364,10 @@ int main() {
         {
             glfwSetWindowShouldClose(window, 1);
         }
+       /* while (glfwGetTime() < lastTime + 1.0 / FPS) {
+            _sleep(300);
+        }
+        lastTime += 1.0 / FPS;*/
     }
     // close GL context and any other GLFW resources
     for (int i = 0; i < bodies.size(); i++)
