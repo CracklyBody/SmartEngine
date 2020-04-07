@@ -266,13 +266,7 @@ int main() {
                 projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
                 cubes.setMat4("projection", projection);
                 cubes.setMat4("model", trans);
-               /* cubes.setVec3("objectcolour",glm::vec3(1.0f, 0.5f, 0.31f));
-                cubes.setVec3("lightcolour",light1.lightcolour);
-                cubes.setVec3("lightPos", light1.lightspos);
-                cubes.setVec3("viewPos", player.getCameraPos());
-                cubes.setFloat("constant", 1.0f);
-                cubes.setFloat("linear", 0.09f);
-                cubes.setFloat("quadratic", 0.032f);*/
+
 
                 cubes.setInt("material.diffuse", 0);
                 cubes.setInt("material.specular", 1);
@@ -352,8 +346,6 @@ int main() {
 
             }
         }
-        //btVector3 p0 = spher->getCenterOfMassPosition();
-        //printf("%f %f %f\n", p0.x(), p0.y(), p0.z());
         glfwPollEvents();
         glfwSwapBuffers(window);
 
