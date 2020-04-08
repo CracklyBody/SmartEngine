@@ -143,8 +143,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Collisionplane.cpp" />
-    <ClCompile Include="Collisionsphere.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -156,8 +154,6 @@
     <ClInclude Include="Bulletcallback.h" />
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="Collision.h" />
-    <ClInclude Include="Collisionplane.h" />
-    <ClInclude Include="Collisionsphere.h" />
     <ClInclude Include="keycallback.h" />
     <ClInclude Include="Light.h" />
     <ClInclude Include="log.h" />
