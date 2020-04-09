@@ -15,6 +15,7 @@
 #include "Player.h"
 #include "Bulletcallback.h"
 #include "Light.h"
+#include "GameObject.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -184,6 +185,14 @@ int main() {
     lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
     lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
+    ShaderLoader * anim = new ShaderLoader();
+    anim->loadShaders("anim.vert", "anim.frag");
+    GameObject* object = new GameObject(); //create model 
+
+    object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
+   // object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
+    object->playAnimation(new Animation("Orange", vec2(0, 245), 0.34, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+
     lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
     {
@@ -231,7 +240,7 @@ int main() {
             bulletObject *cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
             bodies.push_back(cubee);
             cube2->setUserPointer(bodies[bodies.size()-1]);
-            count++;
+            //count++;
             //cubee->body->setUserPointer((void*)(bodies.size()-1));
 
         }
@@ -329,6 +338,15 @@ int main() {
         slight.setMat4("projection", projection);
         slight.setMat4("model", trans);
         light1.Draw(slight);
+        anim->use();
+        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "view"), 1, GL_FALSE, value_ptr(view)); //send the view matrix to the shader
+        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "projection"), 1, GL_FALSE, value_ptr(projection)); //send the projection matrix to the shader
+                                                
+                                                
+        mat4 objectModel = mat4(1.0); //model matrix      
+        objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
+        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "model"), 1, GL_FALSE, value_ptr(objectModel)); //send the empty model matrix to the shader
+        object->render(anim);
         //print positions of all objects
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {

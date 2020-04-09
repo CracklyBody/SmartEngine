@@ -143,27 +143,44 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
+    <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
+    <ClCompile Include="LoadShader.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Model.cpp" />
+    <ClCompile Include="ModelLoader.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="Skeleton.cpp" />
+    <ClCompile Include="SMesh.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
+    <ClInclude Include="Bone.h" />
     <ClInclude Include="Bulletcallback.h" />
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="Collision.h" />
+    <ClInclude Include="convert.h" />
+    <ClInclude Include="GameObject.h" />
     <ClInclude Include="keycallback.h" />
     <ClInclude Include="Light.h" />
+    <ClInclude Include="LoadShader.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Model.h" />
+    <ClInclude Include="ModelLoader.h" />
     <ClInclude Include="mouseray.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="Skeleton.h" />
+    <ClInclude Include="SMesh.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="anim.frag" />
+    <None Include="anim.vert" />
     <None Include="cube.frag" />
     <None Include="cube.vert" />
     <None Include="lightcube.frag" />
