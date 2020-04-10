@@ -191,7 +191,7 @@ int main() {
 
     object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
    // object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    object->playAnimation(new Animation("Orange", vec2(0, 245), 0.34, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
