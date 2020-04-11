@@ -33,6 +33,49 @@ btRigidBody* addBox(float width, float height, float depth, float x, float y, fl
     return body;
 }
 
+void addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld)
+{
+    
+    for (int i = 0; i < model->meshes.size(); i++)
+    {
+        btAlignedObjectArray<btVector3> vertices;
+        btAlignedObjectArray<unsigned int> indices;
+        for (int j = 0; j < model->meshes[i].vertices.size(); j++)
+        {
+            vertices.push_back(btVector3(model->meshes[i].vertices[j].Position.x, model->meshes[i].vertices[j].Position.y, model->meshes[i].vertices[j].Position.z));
+            
+        }
+        for (int j = 0; j < model->meshes[i].indices.size(); j++)
+        {
+            indices.push_back(model->meshes[i].indices[j]);
+        }
+        btTriangleIndexVertexArray* meshInterface = new btTriangleIndexVertexArray();
+        btIndexedMesh part;
+
+        part.m_vertexBase = (const unsigned char*)&(vertices[0].getX());
+        part.m_vertexStride = sizeof(btScalar) * 3;
+        part.m_numVertices = vertices.size();
+        part.m_triangleIndexBase = (const unsigned char*)&indices[0];
+        part.m_triangleIndexStride = sizeof(short) * 3;
+        part.m_numTriangles = indices.size() / 3;
+        part.m_indexType = PHY_SHORT;
+
+        meshInterface->addIndexedMesh(part, PHY_SHORT);
+        btTransform trans;
+        bool useQuantizedAabbCompression = true;
+        btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+        trans.setOrigin(btVector3(0, 0, 0));
+        btVector3 inertia(0.0, 0.0, 0.0);
+        btMotionState* motion = new btDefaultMotionState(trans);
+        btRigidBody::btRigidBodyConstructionInfo info(0, motion, trimeshShape, inertia);
+        btRigidBody* body = new btRigidBody(info);
+       // body->setFriction(btScalar(0.9)); // Трение
+        dynamicsworld->addRigidBody(body);
+
+    }
+    
+}
+
 btRigidBody* addSphere(float rad, float x, float y, float z, float mass, btDiscreteDynamicsWorld* dynamicsWorld)
 {
     btTransform t;

@@ -139,6 +139,7 @@ int main() {
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
+    Model level((char*)"models/gamelevels/SandFinal.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
     {
         std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
@@ -187,20 +188,22 @@ int main() {
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
     btRigidBody* body = new btRigidBody(info);
-    dynamicsWorld->addRigidBody(body);
-    btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
-    spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
+    //dynamicsWorld->addRigidBody(body);
+    //btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
+    //spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
     //btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -1.f, 1.f, dynamicsWorld);
-    btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
-    bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
+   // btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
+    //bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
+    addmodel(&level, dynamicsWorld);
+    //bodies.push_back(new bulletObject(btlevel, bodies.size(), 0.0f, 0.0f, 0.0f));
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
-    btRigidBody* lightc = addBox(2.f, 2.f, 2.f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 1.f, dynamicsWorld);
+    //btRigidBody* lightc = addBox(2.f, 2.f, 2.f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 1.f, dynamicsWorld);
     glm::vec3 look = player.getCameraLook();
-    lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
-    lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
-    bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
+    //lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
+    //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+    //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
     ShaderLoader * anim = new ShaderLoader();
     anim->loadShaders("anim.vert", "anim.frag");
     GameObject* object = new GameObject(); //create model 
@@ -238,7 +241,7 @@ int main() {
         ImGui::NewFrame();
 
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
-        dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
+        //dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
         if (raycallback.hasHit())
         {
             bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
@@ -278,7 +281,7 @@ int main() {
         if(player.cursor == true)
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
-        renderSphere(spher, &cube, nanos, &player);
+        //renderSphere(spher, &cube, nanos, &player);
         //renderBox(box, &shader, &player);
         for (int i = 0; i < bodies.size(); i++)
         {
@@ -356,11 +359,29 @@ int main() {
                 cubes.setFloat("pointLight[3].constant", 1.0f);
                 cubes.setFloat("pointLight[3].linear", 0.09);
                 cubes.setFloat("pointLight[3].quadratic", 0.032);*/
-                //nanosuit.Draw(cubes);
+                cube.Draw(cubes);
 
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);
+            
+            btRigidBody* sphere = bodies[i]->body;
+            btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+            btTransform t;
+            sphere->getMotionState()->getWorldTransform(t);
+            float mat[16];
+            t.getOpenGLMatrix(mat);
+            nanos.Use();
+            glm::mat4 trans = glm::make_mat4(mat);
+            //trans = glm::scale(trans, glm::vec3(100, 100, 100));
+            glm::mat4 view = glm::mat4(1.0f);
+            view = player.lookAt();
+            nanos.setMat4("view", view);
+            glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+            nanos.setMat4("projection", projection);
+            nanos.setMat4("model", trans);
+            level.Draw(nanos);
         }
         slight.Use();
         glm::mat4 trans = glm::mat4(1.0);
