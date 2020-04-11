@@ -265,8 +265,9 @@ unsigned int ModelLoader::textureFromFile(const char* path)
     glGenTextures(1, &textureID); //gen texture, opengl function
     glBindTexture(GL_TEXTURE_2D, textureID); //bind the texture
 
-    int W, H; //width and height
-    unsigned char* image = SOIL_load_image(filename.c_str(), &W, &H, 0, SOIL_LOAD_RGBA); //using SOIL to load the RGBA image
+    int W, H, comp; //width and height
+    unsigned char* image = stbi_load(filename.c_str(), &W, &H, &comp, 4);
+        //SOIL_load_image(filename.c_str(), &W, &H, 0, SOIL_LOAD_RGBA); //using SOIL to load the RGBA image
 
     if (image) //if the image is fine
     {
@@ -279,12 +280,14 @@ unsigned int ModelLoader::textureFromFile(const char* path)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-        SOIL_free_image_data(image); //free the memory
+        stbi_image_free(image);
+        //SOIL_free_image_data(image); //free the memory
     }
     else
     {
         cout << "Fail to load texture at path: " << path << endl;
-        SOIL_free_image_data(image);
+        stbi_image_free(image);
+        //SOIL_free_image_data(image);
     }
 
     return textureID;

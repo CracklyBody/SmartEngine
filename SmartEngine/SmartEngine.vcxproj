@@ -145,6 +145,12 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui_demo.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui_draw.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui_impl_glfw.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui_impl_opengl3.cpp" />
+    <ClCompile Include="ExternalResources\imgui\imgui_widgets.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Light.cpp" />
     <ClCompile Include="LoadShader.cpp" />
@@ -164,6 +170,14 @@
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="convert.h" />
+    <ClInclude Include="ExternalResources\imgui\imconfig.h" />
+    <ClInclude Include="ExternalResources\imgui\imgui.h" />
+    <ClInclude Include="ExternalResources\imgui\imgui_impl_glfw.h" />
+    <ClInclude Include="ExternalResources\imgui\imgui_impl_opengl3.h" />
+    <ClInclude Include="ExternalResources\imgui\imgui_internal.h" />
+    <ClInclude Include="ExternalResources\imgui\imstb_rectpack.h" />
+    <ClInclude Include="ExternalResources\imgui\imstb_textedit.h" />
+    <ClInclude Include="ExternalResources\imgui\imstb_truetype.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="keycallback.h" />
     <ClInclude Include="Light.h" />

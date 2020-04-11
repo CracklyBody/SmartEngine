@@ -17,6 +17,7 @@ public:
 	glm::vec3 getCameraLook();
 	glm::mat4 lookAt();
 	GLFWwindow* window;
+	bool cursor = false;
 private:
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);

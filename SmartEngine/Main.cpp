@@ -16,6 +16,9 @@
 #include "Bulletcallback.h"
 #include "Light.h"
 #include "GameObject.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #define WIDTH 640
 #define HEIGHT 480
@@ -114,13 +117,26 @@ int main() {
         "void main() {"
         "  frag_colour = vec4(colour, 1.0);"
         "}";
+    // IMGUI CONTEXT SETUP
+    bool show_demo_window = true;
+    bool show_another_window = false;
+    ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    //IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    //ImGuiIO& io = ImGui::GetIO(); (void)io;
+    // Setup Dear ImGui style
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    const char* glsl_version = "#version 330";
+    ImGui_ImplOpenGL3_Init(glsl_version);
+    //------
     Shader shader("triangle.vert", "triangle.frag");
     glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
     Shader cubes("cube.vert", "cube.frag");
     Shader slight("lightcube.vert", "lightcube.frag");
 
-    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
@@ -189,9 +205,9 @@ int main() {
     anim->loadShaders("anim.vert", "anim.frag");
     GameObject* object = new GameObject(); //create model 
 
-    object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
+    //object->createGraphicsObject("models/Caterpillar/caterpillar.fbx"); //get data from file
    // object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    //object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     while (!glfwWindowShouldClose(window))
@@ -212,6 +228,11 @@ int main() {
             if(bodies[i]->hit==true)
             bodies[i]->hit = false;
         }
+        // Start the Dear ImGui frame
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
         dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
         if (raycallback.hasHit())
@@ -244,6 +265,16 @@ int main() {
             //cubee->body->setUserPointer((void*)(bodies.size()-1));
 
         }
+        if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
+        {
+            if (player.cursor == true)
+                player.cursor = false;
+            else
+                player.cursor = true;
+        }
+        if(player.cursor == true)
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+
         renderSphere(spher, &cube, nanos, &player);
         //renderBox(box, &shader, &player);
         for (int i = 0; i < bodies.size(); i++)
@@ -322,7 +353,7 @@ int main() {
                 cubes.setFloat("pointLight[3].constant", 1.0f);
                 cubes.setFloat("pointLight[3].linear", 0.09);
                 cubes.setFloat("pointLight[3].quadratic", 0.032);*/
-                nanosuit.Draw(cubes);
+                //nanosuit.Draw(cubes);
 
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
@@ -344,9 +375,9 @@ int main() {
                                                 
                                                 
         mat4 objectModel = mat4(1.0); //model matrix      
-        objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
+        //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
         glUniformMatrix4fv(glGetUniformLocation(anim->ID, "model"), 1, GL_FALSE, value_ptr(objectModel)); //send the empty model matrix to the shader
-        object->render(anim);
+        //object->render(anim);
         //print positions of all objects
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {
@@ -367,7 +398,40 @@ int main() {
 
             }
         }
+        {
+            ImGui::ShowDemoWindow(&show_demo_window);
+
+            static float f = 0.0f;
+            static int counter = 0;
+
+            ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+            ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+            ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+            ImGui::Checkbox("Another Window", &show_another_window);
+
+            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+            if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+                counter++;
+            ImGui::SameLine();
+            ImGui::Text("counter = %d", counter);
+
+            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+            ImGui::End();
+        }
+        if (show_another_window)
+        {
+            ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+            ImGui::Text("Hello from another window!");
+            if (ImGui::Button("Close Me"))
+                show_another_window = false;
+            ImGui::End();
+        }
+        ImGui::Render();
         glfwPollEvents();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 
         if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))
@@ -390,6 +454,8 @@ int main() {
         delete motionState;
         delete bodies[i];
     }
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
     delete dynamicsWorld;
     delete collisionConfiguration;
     delete dispatcher;

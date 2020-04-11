@@ -15,6 +15,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <SOIL/stb_image_aug.h>
 #include <SOIL/SOIL.h>
 #include "loadshader.h"
 #include "convert.h"
