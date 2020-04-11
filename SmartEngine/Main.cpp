@@ -228,6 +228,10 @@ int main() {
             if(bodies[i]->hit==true)
             bodies[i]->hit = false;
         }
+        currentTime = glfwGetTime();
+        player.elapsedtime = (currentTime - lastTime)/1;
+        lastTime = currentTime;
+        player.updatekey();
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -248,7 +252,6 @@ int main() {
         
 
 
-        player.updatekey();
         _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();

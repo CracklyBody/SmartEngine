@@ -18,12 +18,13 @@ public:
 	glm::mat4 lookAt();
 	GLFWwindow* window;
 	bool cursor = false;
+	float elapsedtime = 0.0f;
 private:
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	bool freeze = false;
-	float cameraSpeed = 0.5f;
+	float cameraSpeed = 2.0f;
 	float boostBar = 100.0f;
 	
 	GLfloat lastX = 640;
