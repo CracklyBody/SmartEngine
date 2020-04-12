@@ -139,12 +139,13 @@ int main() {
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/SandFinal.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
     {
         std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
     }
     Light light1((char*)"models/cube/cube.obj");
+    Model level((char*)"models/gamelevels/basiclevel.obj");
+
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
@@ -229,7 +230,7 @@ int main() {
         ImGui::NewFrame();
 
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
-        //dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
+        dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
         if (raycallback.hasHit())
         {
             bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
