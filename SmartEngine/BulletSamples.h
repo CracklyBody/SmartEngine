@@ -33,26 +33,36 @@ btRigidBody* addBox(float width, float height, float depth, float x, float y, fl
     return body;
 }
 
-void addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld)
+unsigned int addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld, std::vector<bulletObject*> *bodies)
 {
-    
+    unsigned int pos;
     for (int i = 0; i < model->meshes.size(); i++)
     {
         btAlignedObjectArray<btVector3> vertices;
         btAlignedObjectArray<unsigned int> indices;
-        for (int j = 0; j < model->meshes[i].vertices.size(); j++)
+        btTriangleMesh* trmesh = new btTriangleMesh();
+
+        for (int j = 0; j < model->meshes[i].vertices.size()-3; j+=3)
         {
-            vertices.push_back(btVector3(model->meshes[i].vertices[j].Position.x, model->meshes[i].vertices[j].Position.y, model->meshes[i].vertices[j].Position.z));
-            
+            //vertices.push_back(btVector3(model->meshes[i].vertices[j].Position.x, model->meshes[i].vertices[j].Position.y, model->meshes[i].vertices[j].Position.z));
+            glm::vec3 v1 = model->meshes[i].vertices[j].Position;
+            glm::vec3 v2 = model->meshes[i].vertices[j +1].Position;
+            glm::vec3 v3 = model->meshes[i].vertices[j +2].Position;
+
+            btVector3 A(v1.x, v1.y, v1.z);
+            btVector3 B(v2.x, v2.y, v2.z);
+            btVector3 C(v3.x, v3.y, v3.z);
+            trmesh->addTriangle(A, B, C);
         }
-        for (int j = 0; j < model->meshes[i].indices.size(); j++)
+        /*for (int j = 0; j < model->meshes[i].indices.size(); j++)
         {
             indices.push_back(model->meshes[i].indices[j]);
-        }
+        }*/
+        
         btTriangleIndexVertexArray* meshInterface = new btTriangleIndexVertexArray();
         btIndexedMesh part;
 
-        part.m_vertexBase = (const unsigned char*)&(vertices[0].getX());
+        /*part.m_vertexBase = (const unsigned char*)&(vertices[0].getX());
         part.m_vertexStride = sizeof(btScalar) * 3;
         part.m_numVertices = vertices.size();
         part.m_triangleIndexBase = (const unsigned char*)&indices[0];
@@ -60,20 +70,23 @@ void addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld)
         part.m_numTriangles = indices.size() / 3;
         part.m_indexType = PHY_SHORT;
 
-        meshInterface->addIndexedMesh(part, PHY_SHORT);
+        meshInterface->addIndexedMesh(part, PHY_SHORT);*/
         btTransform trans;
         bool useQuantizedAabbCompression = true;
-        btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(meshInterface, useQuantizedAabbCompression);
+        btBvhTriangleMeshShape* trimeshShape = new btBvhTriangleMeshShape(trmesh, useQuantizedAabbCompression);
+        //(meshInterface, useQuantizedAabbCompression);
         trans.setOrigin(btVector3(0, 0, 0));
         btVector3 inertia(0.0, 0.0, 0.0);
         btMotionState* motion = new btDefaultMotionState(trans);
         btRigidBody::btRigidBodyConstructionInfo info(0, motion, trimeshShape, inertia);
         btRigidBody* body = new btRigidBody(info);
        // body->setFriction(btScalar(0.9)); // Трение
+        if (i == 0)
+            pos = bodies->size();
         dynamicsworld->addRigidBody(body);
-
+        bodies->push_back(new bulletObject(body,bodies->size(),0.0, 0.0, 0.0));
     }
-    
+    return pos;
 }
 
 btRigidBody* addSphere(float rad, float x, float y, float z, float mass, btDiscreteDynamicsWorld* dynamicsWorld)

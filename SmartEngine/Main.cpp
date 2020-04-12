@@ -139,7 +139,7 @@ int main() {
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/SandFinal.obj");
+    Model level((char*)"models/gamelevels/basiclevel.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
     {
         std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
@@ -168,18 +168,6 @@ int main() {
     btVector3 localIntertia(1, 0, 0);
     if (isDynamic)
         boxCollisionShape->calculateLocalInertia(mass, localIntertia);
-    for (int i = 0; i < 1; i++)
-    {/*
-        btDefaultMotionState* motionState = new btDefaultMotionState(btTransform(btQuaternion(orientation.x, orientation.y, orientation.z, orientation.w), btVector3(position.x, position.y, position.z)));
-        
-        btRigidBody::btRigidBodyConstructionInfo rigidBodyCI(100, motionState, boxCollisionShape, btVector3(10, 0, 0));
-        btRigidBody* rigidBody = new btRigidBody(rigidBodyCI);
-
-        rigidbodies.push_back(rigidBody);
-        dynamicsWorld->addRigidBody(rigidBody);
-
-        rigidBody->setUserPointer((void*)i);*/
-    }
     gContactAddedCallback = callbackFunc;
     btTransform t;
     t.setIdentity();
@@ -194,7 +182,7 @@ int main() {
     //btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -1.f, 1.f, dynamicsWorld);
    // btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
     //bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
-    addmodel(&level, dynamicsWorld);
+    unsigned int pomodel = addmodel(&level, dynamicsWorld,&bodies);
     //bodies.push_back(new bulletObject(btlevel, bodies.size(), 0.0f, 0.0f, 0.0f));
     double lastTime = glfwGetTime();
     int nbFrames = 0;
@@ -283,6 +271,7 @@ int main() {
 
         //renderSphere(spher, &cube, nanos, &player);
         //renderBox(box, &shader, &player);
+        int km = 0;
         for (int i = 0; i < bodies.size(); i++)
         {
             if (i == 1)
@@ -364,24 +353,28 @@ int main() {
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);
-            
-            btRigidBody* sphere = bodies[i]->body;
-            btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
-            btTransform t;
-            sphere->getMotionState()->getWorldTransform(t);
-            float mat[16];
-            t.getOpenGLMatrix(mat);
-            nanos.Use();
-            glm::mat4 trans = glm::make_mat4(mat);
-            //trans = glm::scale(trans, glm::vec3(100, 100, 100));
-            glm::mat4 view = glm::mat4(1.0f);
-            view = player.lookAt();
-            nanos.setMat4("view", view);
-            glm::mat4 projection = glm::mat4(1.0f);
-            projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
-            nanos.setMat4("projection", projection);
-            nanos.setMat4("model", trans);
-            level.Draw(nanos);
+            if (bodies[i]->body->getCollisionShape()->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+            {
+                btRigidBody* sphere = bodies[i]->body;
+                btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+                btTransform t;
+                sphere->getMotionState()->getWorldTransform(t);
+                float mat[16];
+                t.getOpenGLMatrix(mat);
+                nanos.Use();
+                glm::mat4 trans = glm::mat4(1.0f);
+                trans = glm::make_mat4(mat);
+                //trans = glm::scale(trans, glm::vec3(100, 100, 100));
+                glm::mat4 view = glm::mat4(1.0f);
+                view = player.lookAt();
+                nanos.setMat4("view", view);
+                glm::mat4 projection = glm::mat4(1.0f);
+                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+                nanos.setMat4("projection", projection);
+                nanos.setMat4("model", trans);
+                level.meshes[pomodel + km].Draw(nanos);
+                km++;
+            }
         }
         slight.Use();
         glm::mat4 trans = glm::mat4(1.0);
