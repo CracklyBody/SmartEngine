@@ -139,7 +139,7 @@ int main() {
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     Model wall((char*)"models/fallingwall/swall.dae");
     Model cube((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/basiclevel.obj");
+    Model level((char*)"models/gamelevels/SandFinal.obj");
     for(int i=0;i<cube.meshes[0].vertices.size();i++)
     {
         std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
@@ -353,7 +353,7 @@ int main() {
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);
-            if (bodies[i]->body->getCollisionShape()->getShapeType() == TRIANGLE_MESH_SHAPE_PROXYTYPE)
+            if (bodies[i]->body->getCollisionShape()->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE)
             {
                 btRigidBody* sphere = bodies[i]->body;
                 btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();

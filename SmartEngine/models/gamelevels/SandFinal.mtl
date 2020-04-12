@@ -1,5 +1,5 @@
 # Blender MTL File: 'Sand_Final.blend'
-# Material Count: 36
+# Material Count: 35
 
 newmtl Barrol
 Ns 225.000000
@@ -250,16 +250,6 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 1
-
-newmtl Sky
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.147701 0.462765 0.735645
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.000000
-d 1.000000
-illum 2
 
 newmtl Wall
 Ns 225.000000
