@@ -137,15 +137,15 @@ int main() {
     Shader slight("lightcube.vert", "lightcube.frag");
 
     //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
-    Model wall((char*)"models/fallingwall/swall.dae");
-    Model cube((char*)"models/cube/cube.obj");
-    for(int i=0;i<cube.meshes[0].vertices.size();i++)
-    {
-        std::cout << "x: "<< cube.meshes[0].vertices[i].Position.x<<" y: " << cube.meshes[0].vertices[i].Position.y<< " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
-    }
+    //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/basiclevel.obj");
+    Model level((char*)"models/gamelevels/basiclevel2.obj");
+    Model cube((char*)"models/acube/cube.obj");
 
+    for (int i = 0; i < cube.meshes[0].vertices.size(); i++)
+    {
+        std::cout << "x: " << cube.meshes[0].vertices[i].Position.x << " y: " << cube.meshes[0].vertices[i].Position.y << " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
+    }
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
@@ -202,6 +202,8 @@ int main() {
     //object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
+    float linearveloc = 20.0f;
+
     while (!glfwWindowShouldClose(window))
     {
         double currentTime = glfwGetTime();
@@ -239,7 +241,7 @@ int main() {
         }
         //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
         //glm::vec3 v0 = position;
-        dynamicsWorld->stepSimulation(1.f / 60.f, 10);
+        dynamicsWorld->stepSimulation(1.f / 20.f, 10);
 
         
 
@@ -249,9 +251,9 @@ int main() {
         shader.Use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         {
-            btRigidBody* cube2 = addBox(2.f, 2.f, 2.f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 1.f, dynamicsWorld);
+            btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 10000000.f, dynamicsWorld);
             glm::vec3 look = player.getCameraLook();
-            cube2->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
+            cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
             cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
             bulletObject *cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
             bodies.push_back(cubee);
@@ -269,6 +271,8 @@ int main() {
         }
         if(player.cursor == true)
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        else
+            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
         //renderSphere(spher, &cube, nanos, &player);
         //renderBox(box, &shader, &player);
@@ -428,7 +432,7 @@ int main() {
             ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
             ImGui::Checkbox("Another Window", &show_another_window);
 
-            ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+            ImGui::SliderFloat("float", &linearveloc, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
             ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
             if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
