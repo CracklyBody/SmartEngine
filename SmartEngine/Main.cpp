@@ -197,9 +197,9 @@ int main() {
     anim->loadShaders("anim.vert", "anim.frag");
     GameObject* object = new GameObject(); //create model 
 
-    //object->createGraphicsObject("models/Caterpillar/caterpillar.fbx"); //get data from file
-   // object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    //object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
+    //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
+    object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
@@ -399,7 +399,7 @@ int main() {
         mat4 objectModel = mat4(1.0); //model matrix      
         //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
         glUniformMatrix4fv(glGetUniformLocation(anim->ID, "model"), 1, GL_FALSE, value_ptr(objectModel)); //send the empty model matrix to the shader
-        //object->render(anim);
+        object->render(anim);
         //print positions of all objects
         for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         {
