@@ -1,8 +1,12 @@
 #pragma once
+#ifndef PLAYER_H
+#define PLAYER_H
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include "Model.h"
 
 class Player
 {
@@ -17,6 +21,7 @@ public:
 	glm::vec3 getCameraLook();
 	glm::mat4 lookAt();
 	GLFWwindow* window;
+	bulletObject* model;
 	bool cursor = false;
 	float elapsedtime = 0.0f;
 private:
@@ -43,3 +48,4 @@ private:
 		player->updatemouse(xpos, ypos);
 	}
 };
+#endif // !PLAYER_H

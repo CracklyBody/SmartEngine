@@ -10,7 +10,6 @@
 #include <assimp/postprocess.h>
 #include <bullet/btBulletDynamicsCommon.h>
 #include "Mesh.h"
-#include "Player.h"
 #include <SOIL/stb_image_aug.h>
 
 struct Plane {

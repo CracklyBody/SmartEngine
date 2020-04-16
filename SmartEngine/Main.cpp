@@ -14,7 +14,7 @@
 #include <bullet/btBulletDynamicsCommon.h>
 // Classes
 #include "log.h"
-#include "Model.h"
+//#include "Model.h"
 #include "Player.h"
 #include "Bulletcallback.h"
 #include "keycallback.h"
@@ -148,6 +148,9 @@ int main() {
     Light light1((char*)"models/cube/cube.obj");
     Model level((char*)"models/gamelevels/basiclevel2.obj");
     Model cube((char*)"models/acube/cube.obj");
+    ShaderLoader* anim = new ShaderLoader();
+    anim->loadShaders("anim.vert", "anim.frag");
+    GameObject* object = new GameObject(); //create model 
 
     for (int i = 0; i < cube.meshes[0].vertices.size(); i++)
     {
@@ -184,14 +187,7 @@ int main() {
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
     btRigidBody* body = new btRigidBody(info);
-    //dynamicsWorld->addRigidBody(body);
-    //btRigidBody* spher = addSphere(10.0, 0, 20, 0, 10.0, dynamicsWorld);
-    //spher->setLinearVelocity(btVector3(1.0, 0.0, 0.0));
-    //btRigidBody* box = addBox(1.f, 1.f, 1.f, 0.f, 30.f, -1.f, 1.f, dynamicsWorld);
-   // btRigidBody* cube1 = addBox(1.f, 1.f, 1.f, 0.f, 10.f, -1.f, 1.f, dynamicsWorld);
-    //bodies.push_back(new bulletObject(cube1, bodies.size(), 1.0, 0.0, 0.0));
     unsigned int pomodel = addmodel(&level, dynamicsWorld,&bodies);
-    //bodies.push_back(new bulletObject(btlevel, bodies.size(), 0.0f, 0.0f, 0.0f));
     double lastTime = glfwGetTime();
     int nbFrames = 0;
 
@@ -200,9 +196,6 @@ int main() {
     //lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
     //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
-    ShaderLoader * anim = new ShaderLoader();
-    anim->loadShaders("anim.vert", "anim.frag");
-    GameObject* object = new GameObject(); //create model 
 
     object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
     //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
@@ -210,6 +203,17 @@ int main() {
 
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
+
+    {
+        btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, 0.f, 20.f, 2.f, 10000000.f, dynamicsWorld);
+        glm::vec3 look = player.getCameraLook();
+        cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
+        cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
+        player.model = cubee;
+        bodies.push_back(cubee);
+        cube2->setUserPointer(bodies[bodies.size() - 1]);
+    }
 
     while (!glfwWindowShouldClose(window))
     {
@@ -238,22 +242,21 @@ int main() {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        // ---------------RAYCASTING
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
-        dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
+        //dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
         if (raycallback.hasHit())
         {
             bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
             if(ob1!=NULL)
                 ob1->hit = true;
         }
+        //----------------
+
         //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
         //glm::vec3 v0 = position;
-        dynamicsWorld->stepSimulation(1.f / 20.f, 10);
+        dynamicsWorld->stepSimulation(1.f / 10.f, 4);
 
-        
-
-
-        _update_fps_counter(window);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -361,6 +364,7 @@ int main() {
                 cubes.setFloat("pointLight[3].linear", 0.09);
                 cubes.setFloat("pointLight[3].quadratic", 0.032);*/
                 cube.Draw(cubes);
+                
 
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)

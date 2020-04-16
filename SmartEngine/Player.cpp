@@ -33,7 +33,9 @@ glm::vec3 Player::getCameraLook()
 void Player::updatekey()
 {
     if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront*elapsedtime;
+        model->body->setLinearVelocity(btVector3(cameraFront.x * 100, 0 , 0 ));
+
+        //cameraPos += cameraSpeed * cameraFront*elapsedtime;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed*elapsedtime;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
