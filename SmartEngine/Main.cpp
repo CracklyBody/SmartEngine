@@ -1,21 +1,26 @@
 #define _CRT_SECURE_NO_WARNINGS
+// GLEW GLFW
 #define GLEW32_DLL
 #include <GL/glew.h>
 #define GLFW_DLL
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+// GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <bullet/btBulletDynamicsCommon.h>
+// Classes
 #include "log.h"
 #include "Model.h"
 #include "Player.h"
 #include "Bulletcallback.h"
+#include "keycallback.h"
 #include "Light.h"
 #include "GameObject.h"
+// IMGUI
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
@@ -65,6 +70,8 @@ int main() {
     glewInit();
     log_gl_param();
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    //glfwSetWindowSizeCallback(window, window_size_callback);
     Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
 
     player.setupdayekey();
