@@ -24,7 +24,7 @@ btRigidBody* addBox(float width, float height, float depth, float x, float y, fl
     t.setIdentity();
     t.setOrigin(btVector3(x, y, z));
     btCollisionShape* box = new btBoxShape(btVector3(width/2.0,height/2.0,depth/2.0));
-    btVector3 inertia(0.0, 0.0, 0.f);
+    btVector3 inertia(1.0, 1.0, 1.f);
     if (mass != 0.0)
         box->calculateLocalInertia(mass, inertia);
     btMotionState* motion = new btDefaultMotionState(t);

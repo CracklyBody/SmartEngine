@@ -205,9 +205,9 @@ int main() {
     float linearveloc = 20.0f;
 
     {
-        btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, 0.f, 20.f, 2.f, 10000000.f, dynamicsWorld);
+        btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, 0.f, 30.f, 2.f, 1.f, dynamicsWorld);
+        cube2->forceActivationState(DISABLE_DEACTIVATION);
         glm::vec3 look = player.getCameraLook();
-        cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
         cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
         player.model = cubee;
@@ -228,14 +228,11 @@ int main() {
         }
 
         float deltaTime = currentTime - lastTime;
-        for (int i = 0; i < bodies.size(); i++)
-        {
-            if(bodies[i]->hit==true)
-            bodies[i]->hit = false;
-        }
+
         currentTime = glfwGetTime();
         player.elapsedtime = (currentTime - lastTime)/1;
         lastTime = currentTime;
+        dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         player.updatekey();
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -255,7 +252,6 @@ int main() {
 
         //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
         //glm::vec3 v0 = position;
-        dynamicsWorld->stepSimulation(1.f / 10.f, 4);
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();

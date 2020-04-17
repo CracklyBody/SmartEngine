@@ -33,9 +33,7 @@ glm::vec3 Player::getCameraLook()
 void Player::updatekey()
 {
     if(glfwGetKey(window, GLFW_KEY_W)==GLFW_PRESS)
-        model->body->setLinearVelocity(btVector3(cameraFront.x * 100, 0 , 0 ));
-
-        //cameraPos += cameraSpeed * cameraFront*elapsedtime;
+        cameraPos += cameraSpeed * cameraFront*elapsedtime;
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed*elapsedtime;
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
@@ -45,6 +43,11 @@ void Player::updatekey()
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
             if (boostBar != 0.0f)
                 cameraSpeed += 1.0f;
+    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
+        model->body->applyCentralForce(btVector3(0.f, 10.f, 0.f));
+    //model->body->applyCentralImpulse(btVector3(1000.f, 1000.f, 0.f));
+        //model->body->setLinearVelocity(btVector3(0.f,  10.f, 0.f));
+
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
