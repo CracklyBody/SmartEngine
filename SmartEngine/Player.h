@@ -15,6 +15,7 @@ public:
 	~Player();
 	void setupdayekey();
 	void setupdatemouse();
+	void updateCamPos();
 	void updatekey();
 	void updatemouse(double xpos, double ypos);
 	glm::vec3 getCameraPos();
@@ -28,6 +29,7 @@ private:
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);
 	bool freeze = false;
 	float cameraSpeed = 2.0f;
 	float boostBar = 100.0f;

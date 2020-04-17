@@ -210,10 +210,12 @@ int main() {
         glm::vec3 look = player.getCameraLook();
         cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
+        cubee->body->setAngularFactor(0.f);
         player.model = cubee;
         bodies.push_back(cubee);
         cube2->setUserPointer(bodies[bodies.size() - 1]);
     }
+    player.updateCamPos();
 
     while (!glfwWindowShouldClose(window))
     {
