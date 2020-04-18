@@ -10,6 +10,6 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	if(ob!=NULL && ob1!=NULL)
 		std::cout << ob->id<< " " << ob1->id<< std::endl;
 
-	std::cout << "collision" << std::endl;
+	//std::cout << "collision" << std::endl;
 	return false;
 }
