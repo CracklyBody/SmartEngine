@@ -36,23 +36,22 @@ void Player::updatekey()
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        model->body->applyCentralForce(btVector3(cameraFront.x * -10.f,0.f,cameraFront.z*-10.f));
-       // cameraPos += cameraSpeed * cameraFront * elapsedtime;
+        model->body->applyCentralForce(btVector3(cameraFront.x * -cameraSpeed,0.f,cameraFront.z*-cameraSpeed));
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
     {
-        cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * elapsedtime;
+        glm::vec3 left = glm::normalize(glm::cross(cameraFront, cameraUp));
+        model->body->applyCentralForce(btVector3(left.x * cameraSpeed, 0.f, left.z * cameraSpeed));
+
     }
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
     {
-        model->body->applyCentralForce(btVector3(cameraFront.x * 10.f, 0.f, cameraFront.z * 10.f));
-        //cameraPos -= cameraSpeed * cameraFront * elapsedtime;
+        model->body->applyCentralForce(btVector3(cameraFront.x * cameraSpeed, 0.f, cameraFront.z * cameraSpeed));
     }
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
     {
-        glm::vec3 strafe = glm::normalize(glm::cross(cameraFront, cameraUp));
-        model->body->applyCentralForce(btVector3(strafe.x * +10.f, 0.f, 0.f));
-        //cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed * elapsedtime;
+        glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
+        model->body->applyCentralForce(btVector3(right.x * -cameraSpeed, 0.f, right.z * cameraSpeed));
     }
     if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
     {

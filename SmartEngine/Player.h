@@ -40,7 +40,7 @@ private:
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);
 	bool freeze = false;
-	float cameraSpeed = 2.0f;
+	float cameraSpeed = 10.0f;
 	float boostBar = 100.0f;
 	
 	GLfloat lastX = 640;
