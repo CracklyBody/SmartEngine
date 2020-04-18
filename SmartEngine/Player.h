@@ -6,6 +6,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#define _USE_MATH_DEFINES
+#include <cmath>
 #include "Model.h"
 
 class Player
@@ -26,6 +28,13 @@ public:
 	bool cursor = false;
 	float elapsedtime = 0.0f;
 private:
+	float getModelAngle();
+	btVector3 getAxis();
+	float calculateHorizontalDistance();
+	float calculateVerticalDostance();
+	float distanceFromPlayer = 50.f;
+	float horizontalDistance = 0.f;
+	float verticalDistance = 0.f;
 	glm::vec3 cameraPos;
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -36,7 +45,7 @@ private:
 	
 	GLfloat lastX = 640;
 	GLfloat lastY = 480;
-	GLfloat yaw = -90.0f;
+	GLfloat yaw = 180.0f;
 	GLfloat pitch = 0.0f;
 
 	static void updatekey(GLFWwindow* window, int key, int scancode, int action, int mode)

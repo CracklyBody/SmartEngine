@@ -143,7 +143,7 @@ int main() {
     Shader cubes("cube.vert", "cube.frag");
     Shader slight("lightcube.vert", "lightcube.frag");
 
-    //Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
     Model level((char*)"models/gamelevels/basiclevel2.obj");
@@ -215,7 +215,6 @@ int main() {
         bodies.push_back(cubee);
         cube2->setUserPointer(bodies[bodies.size() - 1]);
     }
-    player.updateCamPos();
 
     while (!glfwWindowShouldClose(window))
     {
@@ -236,6 +235,7 @@ int main() {
         lastTime = currentTime;
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         player.updatekey();
+        player.updateCamPos();
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -361,7 +361,7 @@ int main() {
                 cubes.setFloat("pointLight[3].constant", 1.0f);
                 cubes.setFloat("pointLight[3].linear", 0.09);
                 cubes.setFloat("pointLight[3].quadratic", 0.032);*/
-                cube.Draw(cubes);
+                nanosuit.Draw(cubes);
                 
 
             }
@@ -410,25 +410,25 @@ int main() {
         glUniformMatrix4fv(glGetUniformLocation(anim->ID, "model"), 1, GL_FALSE, value_ptr(objectModel)); //send the empty model matrix to the shader
         object->render(anim);
         //print positions of all objects
-        for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
-        {
-            btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
-            btRigidBody* body = btRigidBody::upcast(obj);
-            btTransform trans;
-            if (body && body->getMotionState())
-            {
-                body->getMotionState()->getWorldTransform(trans);
-            }
-            else
-            {
-                trans = obj->getWorldTransform();
-            }
-            //if (currentTime - lastTime >= 1.0)
-            {
-                printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
+        //for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
+        //{
+        //    btCollisionObject* obj = dynamicsWorld->getCollisionObjectArray()[j];
+        //    btRigidBody* body = btRigidBody::upcast(obj);
+        //    btTransform trans;
+        //    if (body && body->getMotionState())
+        //    {
+        //        body->getMotionState()->getWorldTransform(trans);
+        //    }
+        //    else
+        //    {
+        //        trans = obj->getWorldTransform();
+        //    }
+        //    //if (currentTime - lastTime >= 1.0)
+        //    {
+        //        printf("world pos object %d = %f,%f,%f\n", j, float(trans.getOrigin().getX()), float(trans.getOrigin().getY()), float(trans.getOrigin().getZ()));
 
-            }
-        }
+        //    }
+        //}
         {
             ImGui::ShowDemoWindow(&show_demo_window);
 

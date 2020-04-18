@@ -1,5 +1,7 @@
 #include "Player.h"
 
+const btScalar RADIANS_PER_DEGREE = M_PI / btScalar(180.0);
+
 Player::Player(glm::vec3 pos,GLFWwindow * window) : cameraPos(pos), window(window)
 {
     glfwSetWindowUserPointer(window, this);
@@ -34,7 +36,7 @@ void Player::updatekey()
 {
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
     {
-        model->body->applyCentralForce(btVector3(cameraFront.x*10.f,0.f,cameraFront.z*10.f));
+        model->body->applyCentralForce(btVector3(0.f,0.f,cameraFront.z*10.f));
        // cameraPos += cameraSpeed * cameraFront * elapsedtime;
     }
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
@@ -69,7 +71,15 @@ void Player::updateCamPos()
 {
     btTransform trans = model->body->getWorldTransform();
     btVector3 pos = trans.getOrigin();
-    cameraPos = glm::vec3(pos.x(), pos.y() + 30.f, pos.z() - 50.f);
+    horizontalDistance = calculateHorizontalDistance();
+    verticalDistance = calculateVerticalDostance();
+    cameraPos.y = pos.y() + verticalDistance;
+    float theta = yaw;
+    float offsetX = horizontalDistance * sin(glm::radians(theta));
+    float offsetZ = horizontalDistance * cos(glm::radians(theta));
+    cameraPos.x = pos.x() + offsetX;
+    cameraPos.z = pos.z() + offsetZ;
+    //cameraPos = glm::vec3(pos.x(), pos.y() + 30.f, pos.z() - 50.f);
     //cameraFront = glm::vec3(pos.x(), pos.y()+15.f, pos.z());
     cameraTarget = glm::vec3(pos.x(), pos.y(), pos.z());
 }
@@ -92,24 +102,47 @@ void Player::updatemouse(double xpos, double ypos)
 
     yaw += xoffset;
     pitch += yoffset;
-
- /*   if (pitch > 89.0f)
+    if (pitch > 89.0f)
         pitch = 89.0f;
     if (pitch < -89.0f)
-        pitch = -89.0f;*/
+        pitch = -89.0f;
 
     glm::vec3 front;
     front.x = cos(glm::radians(pitch)) * cos(glm::radians(yaw));
     front.y = sin(glm::radians(pitch));
     front.z = cos(glm::radians(pitch)) * sin(glm::radians(yaw));
-    float horizDistance = 50.f * cos(glm::radians(pitch));
-    float verticalDistance = 50.f * sin(glm::radians(pitch));
-    float ofsetX = horizDistance * sin(glm::radians(yaw));
-    float ofsetZ = horizDistance * cos(glm::radians(yaw));
-    cameraPos.x = cameraTarget.x - ofsetX;
-    cameraPos.z = cameraTarget.z - ofsetX;
+    float changedyaw = yaw + 180;
+    btQuaternion q = btQuaternion(changedyaw * RADIANS_PER_DEGREE, 0.f, 0.0f);
+    btTransform trans = model->body->getWorldTransform();;
+    trans.setRotation(q);
+    model->body->setWorldTransform(trans);
+    //printf("Yaw: %f\n", yaw);
+    //printf("ChangedYaw: %f\n", xoffset);
+    //printf("Model angle: %f\n", getModelAngle());
+
     //cameraFront = glm::normalize(front);
     cameraFront = front;
     return;
 }
 
+btVector3 Player::getAxis()
+{
+    btQuaternion rotQuat = model->body->getWorldTransform().getRotation();
+    return rotQuat.getAxis();
+}
+
+float Player::getModelAngle()
+{
+    btQuaternion rotQuat = model->body->getWorldTransform().getRotation();
+    return rotQuat.getAngle();
+}
+
+float Player::calculateHorizontalDistance()
+{
+    return distanceFromPlayer * cos(glm::radians(pitch));
+}
+
+float Player::calculateVerticalDostance()
+{
+    return distanceFromPlayer * sin(glm::radians(pitch));
+}
