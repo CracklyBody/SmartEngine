@@ -337,30 +337,6 @@ int main() {
                 cubes.setFloat("pointLight[0].constant", 1.0f);
                 cubes.setFloat("pointLight[0].linear", 0.09);
                 cubes.setFloat("pointLight[0].quadratic", 0.032);
-                
-              /*  cubes.setVec3("pointLight[1].position", glm::vec3(2.3f, -3.3f, -4.0f));
-                cubes.setVec3("pointLight[1].ambient", 0.05f, 0.05f, 0.05f);
-                cubes.setVec3("pointLight[1].diffuse", 0.8f, 0.8f, 0.8f);
-                cubes.setVec3("pointLight[1].specular", 1.0f, 1.0f, 1.0f);
-                cubes.setFloat("pointLight[1].constant", 1.0f);
-                cubes.setFloat("pointLight[1].linear", 0.09);
-                cubes.setFloat("pointLight[1].quadratic", 0.032);
-                
-                cubes.setVec3("pointLight[2].position", glm::vec3(-4.0f, 2.0f, -12.0f));
-                cubes.setVec3("pointLight[2].ambient", 0.05f, 0.05f, 0.05f);
-                cubes.setVec3("pointLight[2].diffuse", 0.8f, 0.8f, 0.8f);
-                cubes.setVec3("pointLight[2].specular", 1.0f, 1.0f, 1.0f);
-                cubes.setFloat("pointLight[2].constant", 1.0f);
-                cubes.setFloat("pointLight[2].linear", 0.09);
-                cubes.setFloat("pointLight[2].quadratic", 0.032);
-                
-                cubes.setVec3("pointLight[3].position", glm::vec3(0.0f, 0.0f, -3.0f));
-                cubes.setVec3("pointLight[3].ambient", 0.05f, 0.05f, 0.05f);
-                cubes.setVec3("pointLight[3].diffuse", 0.8f, 0.8f, 0.8f);
-                cubes.setVec3("pointLight[3].specular", 1.0f, 1.0f, 1.0f);
-                cubes.setFloat("pointLight[3].constant", 1.0f);
-                cubes.setFloat("pointLight[3].linear", 0.09);
-                cubes.setFloat("pointLight[3].quadratic", 0.032);*/
                 nanosuit.Draw(cubes);
                 
 
@@ -469,10 +445,6 @@ int main() {
         {
             glfwSetWindowShouldClose(window, 1);
         }
-       /* while (glfwGetTime() < lastTime + 1.0 / FPS) {
-            _sleep(300);
-        }
-        lastTime += 1.0 / FPS;*/
     }
     // close GL context and any other GLFW resources
     for (int i = 0; i < bodies.size(); i++)
