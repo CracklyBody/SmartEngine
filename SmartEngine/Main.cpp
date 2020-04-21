@@ -251,10 +251,6 @@ int main() {
                 ob1->hit = true;
         }
         //----------------
-
-        //btVector3 p0 = rigidbodies[0]->getCenterOfMassPosition();
-        //glm::vec3 v0 = position;
-
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
@@ -266,9 +262,6 @@ int main() {
             bulletObject *cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
             bodies.push_back(cubee);
             cube2->setUserPointer(bodies[bodies.size()-1]);
-            //count++;
-            //cubee->body->setUserPointer((void*)(bodies.size()-1));
-
         }
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
         {
@@ -281,9 +274,6 @@ int main() {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-        //renderSphere(spher, &cube, nanos, &player);
-        //renderBox(box, &shader, &player);
         int km = 0;
         for (int i = 0; i < bodies.size(); i++)
         {
