@@ -48,28 +48,15 @@ unsigned int addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld, std:
         for (int j = 0; j < model->meshes[i].vertices.size(); j++)
         {
             vertices.push_back(btVector3(model->meshes[i].vertices[j].Position.x, model->meshes[i].vertices[j].Position.y, model->meshes[i].vertices[j].Position.z));
-            //glm::vec3 v1 = model->meshes[i].vertices[j].Position;
-            //pos1.push_back(btVector3(v1.x, v1.y, v1.z));
-            //convexshape->addPoint(btVector3(v1.x, v1.y, v1.z),false);
         }
         btCollisionShape* shape = new btConvexHullShape(&(vertices[0].getX()), vertices.size());
-        /*btTriangleMesh* triangleMesh = new btTriangleMesh();
-        for (int j = 0; j < model->meshes[i].indices.size() - 3; j += 3)
-            triangleMesh->addTriangle(pos1[model->meshes[i].indices[j]], pos1[model->meshes[i].indices[j + 1]], pos1[model->meshes[i].indices[j + 2]]);*/
-        //btTriangleIndexVertexArray* trianshape = new btTriangleIndexVertexArray((int)(model->meshes[i].indices.size() / 3), (int*)(model->meshes[i].indices.data()), (int)(sizeof(int) * 3), (int)model->meshes[i].vertices.size(), points, (int)sizeof(btScalar) * 3);
-        //btBvhTriangleMeshShape* physicsShape = new btBvhTriangleMeshShape(trianshape, true, true);
-        //btConvexTriangleMeshShape* conmesh = new btConvexTriangleMeshShape(triangleMesh);
-
         btTransform trans;
         trans.setIdentity();
         trans.setOrigin(btVector3(0,0,0));
         btVector3 inertia(0, 0, 0);
-        //physicsShape->calculateLocalInertia(0.0, inertia);
         btMotionState* motion = new btDefaultMotionState(trans);
         btRigidBody::btRigidBodyConstructionInfo info(0, motion, shape, inertia);
         btRigidBody* body = new btRigidBody(info);
-        //body->setLinearVelocity(btVector3(0, 0, 0));
-        //body->setAngularVelocity(btVector3(0, 0, 0));
        // body->setFriction(btScalar(0.9)); // Трение
         if (i == 0)
             pos = bodies->size();
@@ -186,20 +173,7 @@ void renderBox(bulletObject* obj, Shader * shader, Player* player)
     GLuint projectionLoc = glGetUniformLocation(shader->Program, "projection");
     glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, &projection[0][0]);
     glBindVertexArray(vao);
-
-
     glDrawArrays(GL_TRIANGLES, 0, 36);
-
-    //glm::mat4 tr = glm::make_mat4(mat); // translation, rotation
-    //glm::mat4 view = glm::mat4(1.0f);
-    //view = player->lookAt();
-    //glm::mat4 projection = glm::mat4(1.0f);
-    //projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
-    //shader.Use();
-    //shader.setMat4("view", view);
-    //shader.setMat4("projection", projection);
-    //shader.setMat4("model", tr);
-    //model->Draw(shader);
 }
 
 void renderSphere(btRigidBody* sphere, Model* model, Shader shader, Player* player)
@@ -221,17 +195,6 @@ void renderSphere(btRigidBody* sphere, Model* model, Shader shader, Player* play
     shader.setMat4("projection", projection);
     shader.setMat4("model", tr);
     //model->Draw(shader);
-    //glPushMatrix();
-    //glMultMatrixf(mat);	// translation, rotation
-    //glBegin(GL_QUADS);
-    //glVertex3f(-10, 0, 10);
-    //glVertex3f(-10, 0, -10);
-    //glVertex3f(10, 0, -10);
-    //glVertex3f(10, 0, 10);
-    //glEnd();
-    //glPopMatrix();
-    ////gluSphere(quad, r, 20, 20);
-    //glPopMatrix();
 }
 
 void renderPlane(btRigidBody* sphere)
