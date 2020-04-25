@@ -99,31 +99,33 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
-    //------
+    // Load Shaders
     Shader shader("triangle.vert", "triangle.frag");
-    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     Shader nanos("model.vert", "model.frag");
     Shader cubes("cube.vert", "cube.frag");
     Shader slight("lightcube.vert", "lightcube.frag");
-
+    ShaderLoader* anim = new ShaderLoader();
+    anim->loadShaders("anim.vert", "anim.frag");
+    // Load Models and AnimModels
     Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
     //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
     Model level((char*)"models/gamelevels/basiclevel2.obj");
     Model cube((char*)"models/acube/cube.obj");
-    ShaderLoader* anim = new ShaderLoader();
-    anim->loadShaders("anim.vert", "anim.frag");
     GameObject* object = new GameObject(); //create model 
 
-    for (int i = 0; i < cube.meshes[0].vertices.size(); i++)
+    /*for (int i = 0; i < cube.meshes[0].vertices.size(); i++)
     {
         std::cout << "x: " << cube.meshes[0].vertices[i].Position.x << " y: " << cube.meshes[0].vertices[i].Position.y << " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
-    }
+    }*/
+    // Faster render
     //glEnable(GL_CULL_FACE);
     //glCullFace(GL_BACK);
     //glFrontFace(GL_CW);
+
     glm::vec3 position = glm::vec3(0.3f, 0.5f, -1.0f);
     glm::quat orientation = glm::normalize(glm::quat(glm::vec3(rand() % 360, rand() % 360, rand() % 360)));
+
     // Start initialize Bullet
     btBroadphaseInterface* broadphase = new btDbvtBroadphase();
 
@@ -149,6 +151,7 @@ int main() {
     btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0),0);
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
+    // ADD FIRST RIGID BODY
     btRigidBody* body = new btRigidBody(info);
     unsigned int pomodel = addmodel(&level, dynamicsWorld,&bodies);
     double lastTime = glfwGetTime();
@@ -159,14 +162,14 @@ int main() {
     //lightc->setLinearVelocity(btVector3(look.x * 20, look.y * 20, look.z * 20));
     //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
-
+    // ADD ANIMATION MODEL
     object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
     //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
     object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
-
+    // ADD Main Player Model
     {
         btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, 0.f, 30.f, 2.f, 1.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
@@ -183,20 +186,13 @@ int main() {
     {
         double currentTime = glfwGetTime();
         nbFrames++;
-        if (currentTime - lastTime >= 1.0)
-        {
-            printf("%f ms/frame\n", 1000.0 / double(nbFrames));
-            // printf("p0:%f %f %f v0:%f %f %f\n", p0.x(), p0.y(), p0.z(), v0.x, v0.y, v0.z);
-            nbFrames = 0;
-            lastTime += 1.0;
-        }
-
         float deltaTime = currentTime - lastTime;
-
-        currentTime = glfwGetTime();
+        // Change player time for maximize smooth movement
         player.elapsedtime = (currentTime - lastTime)/1;
+
         lastTime = currentTime;
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
+        // Update Keyboard and Camera
         player.updatekey();
         player.updateCamPos();
         // Start the Dear ImGui frame
@@ -226,6 +222,7 @@ int main() {
             bodies.push_back(cubee);
             cube2->setUserPointer(bodies[bodies.size()-1]);
         }
+        // ON/OFF Cursor for debug menu
         if (glfwGetKey(window, GLFW_KEY_9) == GLFW_PRESS)
         {
             if (player.cursor == true)
@@ -238,8 +235,17 @@ int main() {
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         int km = 0;
+        /*
+         *In this cycle we draw every body in collision world
+         *Every body has a shapetype
+         *CONVEX HULL shape - ALWAYS map
+         *BOX shape - 3D models
+         *SPHERE shape - idk...sphere
+         *STATIC PLANE - low level map
+        */
         for (int i = 0; i < bodies.size(); i++)
         {
+            // Second object is lamp. This need to rewrite
             if (i == 1)
             {
                 slight.Use();
