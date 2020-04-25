@@ -99,6 +99,7 @@ int main() {
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     const char* glsl_version = "#version 330";
     ImGui_ImplOpenGL3_Init(glsl_version);
+    glClearColor(0.6f, 0.6f, 0.8f, 1.0f);
     // Load Shaders
     Shader shader("triangle.vert", "triangle.frag");
     Shader nanos("model.vert", "model.frag");
@@ -335,14 +336,12 @@ int main() {
         slight.setMat4("projection", projection);
         slight.setMat4("model", trans);
         light1.Draw(slight);
-        anim->use();
-        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "view"), 1, GL_FALSE, value_ptr(view)); //send the view matrix to the shader
-        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "projection"), 1, GL_FALSE, value_ptr(projection)); //send the projection matrix to the shader
-                                                
-                                                
         mat4 objectModel = mat4(1.0); //model matrix      
         //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
-        glUniformMatrix4fv(glGetUniformLocation(anim->ID, "model"), 1, GL_FALSE, value_ptr(objectModel)); //send the empty model matrix to the shader
+        anim->use();
+        anim->setMat4("view", view);
+        anim->setMat4("projection", projection);
+        anim->setMat4("model", objectModel);
         object->render(anim);
         //print positions of all objects
         //for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)

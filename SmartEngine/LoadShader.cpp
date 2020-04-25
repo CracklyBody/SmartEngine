@@ -11,7 +11,7 @@ GLuint ShaderLoader::loadShaders(string vertex_path, string fragment_path)
     GLuint VertexShaderID = glCreateShader(GL_VERTEX_SHADER);
     GLuint FragmentShaderID = glCreateShader(GL_FRAGMENT_SHADER);
 
-    // Read the smesh::Vertex Shader code from the file
+    // Read the smesh::Vertex ShaderLoader code from the file
     string VertexShaderCode;
     ifstream VertexShaderStream(vertex_file_path, ios::in);
 
@@ -29,7 +29,7 @@ GLuint ShaderLoader::loadShaders(string vertex_path, string fragment_path)
         return 0;
     }
 
-    // Read the Fragment Shader code from the file
+    // Read the Fragment ShaderLoader code from the file
     string FragmentShaderCode;
     ifstream FragmentShaderStream(fragment_file_path, ios::in);
 
@@ -44,14 +44,14 @@ GLuint ShaderLoader::loadShaders(string vertex_path, string fragment_path)
     GLint Result = GL_FALSE;
     int InfoLogLength;
 
-    // Compile smesh::Vertex Shader
+    // Compile smesh::Vertex ShaderLoader
     printf("Compiling shader : %s\n", vertex_file_path);
 
     char const* VertexSourcePointer = VertexShaderCode.c_str();
     glShaderSource(VertexShaderID, 1, &VertexSourcePointer, NULL);
     glCompileShader(VertexShaderID);
 
-    // Check smesh::Vertex Shader
+    // Check smesh::Vertex ShaderLoader
     glGetShaderiv(VertexShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(VertexShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 
@@ -63,14 +63,14 @@ GLuint ShaderLoader::loadShaders(string vertex_path, string fragment_path)
     }
 
 
-    // Compile Fragment Shader
+    // Compile Fragment ShaderLoader
     printf("Compiling shader : %s\n", fragment_file_path);
 
     char const* FragmentSourcePointer = FragmentShaderCode.c_str();
     glShaderSource(FragmentShaderID, 1, &FragmentSourcePointer, NULL);
     glCompileShader(FragmentShaderID);
 
-    // Check Fragment Shader
+    // Check Fragment ShaderLoader
     glGetShaderiv(FragmentShaderID, GL_COMPILE_STATUS, &Result);
     glGetShaderiv(FragmentShaderID, GL_INFO_LOG_LENGTH, &InfoLogLength);
 
@@ -118,3 +118,61 @@ void ShaderLoader::use()
 }
 
 ShaderLoader::~ShaderLoader() {}
+
+void ShaderLoader::setBool(const std::string& name, bool value) const
+{
+    glUniform1i(glGetUniformLocation(this->ID, name.c_str()), value);
+}
+void ShaderLoader::setInt(const std::string& name, int value) const
+{
+    glUniform1i(glGetUniformLocation(this->ID, name.c_str()), value);
+
+}
+void ShaderLoader::setFloat(const std::string& name, float value) const
+{
+    glUniform1f(glGetUniformLocation(this->ID, name.c_str()), value);
+
+}
+void ShaderLoader::setVec2(const std::string& name, const glm::vec2& value) const
+{
+    glUniform2fv(glGetUniformLocation(this->ID, name.c_str()), 1, &value[0]);
+
+}
+void ShaderLoader::setVec2(const std::string& name, float x, float y) const
+{
+    glUniform2f(glGetUniformLocation(this->ID, name.c_str()), x, y);
+
+}
+void ShaderLoader::setVec3(const std::string& name, const glm::vec3& value) const
+{
+    glUniform3fv(glGetUniformLocation(this->ID, name.c_str()), 1, &value[0]);
+
+}
+void ShaderLoader::setVec3(const std::string& name, float x, float y, float z) const
+{
+    glUniform3f(glGetUniformLocation(this->ID, name.c_str()), x, y, z);
+
+}
+void ShaderLoader::setVec4(const std::string& name, const glm::vec4& value) const
+{
+    glUniform4fv(glGetUniformLocation(this->ID, name.c_str()), 1, &value[0]);
+
+}
+void ShaderLoader::setVec4(const std::string& name, float x, float y, float z, float w) const
+{
+    glUniform4f(glGetUniformLocation(this->ID, name.c_str()), x, y, z, w);
+}
+void ShaderLoader::setMat2(const std::string& name, const glm::mat2& mat) const
+{
+    glUniformMatrix2fv(glGetUniformLocation(this->ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+}
+void ShaderLoader::setMat3(const std::string& name, const glm::mat3& mat) const
+{
+    glUniformMatrix3fv(glGetUniformLocation(this->ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+
+}
+void ShaderLoader::setMat4(const std::string& name, const glm::mat4& mat) const
+{
+    glUniformMatrix4fv(glGetUniformLocation(this->ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
+
+}
