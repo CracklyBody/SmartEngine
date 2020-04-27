@@ -1,3 +1,8 @@
+/*
+*Course work 
+*3rd year student Ovchinnikov Maxim
+*/
+
 #define _CRT_SECURE_NO_WARNINGS
 // GLEW GLFW
 #define GLEW32_DLL
