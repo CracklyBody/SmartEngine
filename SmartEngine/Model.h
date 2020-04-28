@@ -17,7 +17,7 @@ struct Plane {
 	glm::vec3 yAxis;
 	glm::vec3 zAxis;
 };
-
+// BulletObject structure created for draw rigid body from vector more ease
 struct bulletObject
 {
 	int id;
@@ -29,7 +29,7 @@ struct bulletObject
 
 	}
 };
-
+// Model class for static models
 class Model
 {
 public:

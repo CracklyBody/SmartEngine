@@ -1,6 +1,6 @@
 #pragma once
 #include "Model.h"
-
+// Light class created for lignt model
 class Light :public Model
 {
 public:

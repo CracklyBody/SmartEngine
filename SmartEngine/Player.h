@@ -9,7 +9,7 @@
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "Model.h"
-
+// Main player class, has func for update camera and more
 class Player
 {
 public:
