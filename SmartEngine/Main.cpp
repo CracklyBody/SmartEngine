@@ -25,6 +25,8 @@
 #include "keycallback.h"
 #include "Light.h"
 #include "GameObject.h"
+#include "SkyBox.h"
+#include "DepthMap.h"
 // IMGUI
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
@@ -110,6 +112,8 @@ int main() {
     Shader nanos("model.vert", "model.frag");
     Shader cubes("cube.vert", "cube.frag");
     Shader slight("lightcube.vert", "lightcube.frag");
+    Shader skyboxShader("cubeMap.vert", "cubeMap.frag");
+    Shader depthShader("depthShader.vert", "depthShader.frag");
     ShaderLoader* anim = new ShaderLoader();
     anim->loadShaders("anim.vert", "anim.frag");
     // Load Models and AnimModels
@@ -119,7 +123,14 @@ int main() {
     Model level((char*)"models/gamelevels/basiclevel2.obj");
     Model cube((char*)"models/acube/cube.obj");
     GameObject* object = new GameObject(); //create model 
-
+    // DEPTHMAP LOAD
+    DepthMap depthmap;
+    // SKYBOX LOAD--------
+    SkyBox skybox(std::vector<std::string>({ 
+        "skybox/right.jpg","skybox/left.jpg",
+        "skybox/top.jpg","skybox/bottom.jpg",
+        "skybox/front.jpg","skybox/back.jpg"}));
+    //-------------------
     /*for (int i = 0; i < cube.meshes[0].vertices.size(); i++)
     {
         std::cout << "x: " << cube.meshes[0].vertices[i].Position.x << " y: " << cube.meshes[0].vertices[i].Position.y << " z: " << cube.meshes[0].vertices[i].Position.z << std::endl;
@@ -190,6 +201,7 @@ int main() {
 
     while (!glfwWindowShouldClose(window))
     {
+        int km = 0;
         double currentTime = glfwGetTime();
         nbFrames++;
         float deltaTime = currentTime - lastTime;
@@ -205,7 +217,59 @@ int main() {
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
+        //----------------SHADOW MAP
+        glm::mat4 lightProjection, lightView;
+        glm::mat4 lightSpaceMatrix;
+        float near_plane = 1.0f, far_plane = 1000.5f;
+        lightProjection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, near_plane, far_plane);
+        lightView = glm::lookAt(depthmap.lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        lightSpaceMatrix = lightProjection * lightView;
 
+        depthShader.Use();
+        depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+        depthmap.bind();
+        glCullFace(GL_FRONT);
+        for (int i = 0; i < bodies.size(); i++)
+        {
+            if (bodies[i]->body->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
+            {
+                btRigidBody* sphere = bodies[i]->body;
+                btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+                btTransform t;
+                sphere->getMotionState()->getWorldTransform(t);
+                float mat[16];
+                t.getOpenGLMatrix(mat);
+                glm::mat4 trans = glm::make_mat4(mat);
+                depthShader.setMat4("model", trans);
+                depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+
+                nanosuit.Draw(depthShader);
+
+
+            }
+            if (bodies[i]->body->getCollisionShape()->getShapeType() == CONVEX_HULL_SHAPE_PROXYTYPE)
+            {
+                btRigidBody* sphere = bodies[i]->body;
+                btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+                btTransform t;
+                sphere->getMotionState()->getWorldTransform(t);
+                float mat[16];
+                t.getOpenGLMatrix(mat);
+                glm::mat4 trans = glm::mat4(1.0f);
+                trans = glm::make_mat4(mat);
+                depthShader.setMat4("model", trans);
+                depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                level.meshes[pomodel + km].Draw(depthShader);
+                km++;
+            }
+        }
+        glCullFace(GL_BACK);
+
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        // reset viewport
+        glViewport(0, 0, WIDTH, HEIGHT);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         // ---------------RAYCASTING
         btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
         //dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
@@ -240,7 +304,7 @@ int main() {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-        int km = 0;
+        km = 0;
         /*
          *In this cycle we draw every body in collision world
          *Every body has a shapetype
@@ -282,8 +346,9 @@ int main() {
                 projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
                 cubes.setMat4("projection", projection);
                 cubes.setMat4("model", trans);
-
-
+                cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                cubes.setVec3("lightPos", depthmap.lightPos);
+                cubes.setVec3("viewPos", player.getCameraPos());
                 cubes.setInt("material.diffuse", 0);
                 cubes.setInt("material.specular", 1);
                 cubes.setVec3("viewPos", player.getCameraPos());
@@ -316,18 +381,21 @@ int main() {
                 sphere->getMotionState()->getWorldTransform(t);
                 float mat[16];
                 t.getOpenGLMatrix(mat);
-                nanos.Use();
+                cubes.Use();
                 glm::mat4 trans = glm::mat4(1.0f);
                 trans = glm::make_mat4(mat);
                 //trans = glm::scale(trans, glm::vec3(100, 100, 100));
                 glm::mat4 view = glm::mat4(1.0f);
                 view = player.lookAt();
-                nanos.setMat4("view", view);
+                cubes.setMat4("view", view);
                 glm::mat4 projection = glm::mat4(1.0f);
                 projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
-                nanos.setMat4("projection", projection);
-                nanos.setMat4("model", trans);
-                level.meshes[pomodel + km].Draw(nanos);
+                cubes.setMat4("projection", projection);
+                cubes.setMat4("model", trans);
+                cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+                cubes.setVec3("lightPos", depthmap.lightPos);
+                cubes.setVec3("viewPos", player.getCameraPos());
+                level.meshes[pomodel + km].Draw(cubes);
                 km++;
             }
         }
@@ -399,6 +467,13 @@ int main() {
             ImGui::End();
         }
         ImGui::Render();
+        glDepthFunc(GL_LEQUAL);
+        skyboxShader.Use();
+        view = glm::mat4(glm::mat3(player.lookAt()));
+        skyboxShader.setMat4("view", view);
+        skyboxShader.setMat4("projection", projection);
+        skybox.draw();
+
         glfwPollEvents();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

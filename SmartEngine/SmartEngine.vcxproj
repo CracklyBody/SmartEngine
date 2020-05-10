@@ -145,6 +145,8 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Bone.cpp" />
+    <ClCompile Include="DepthMap.cpp" />
+    <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="ExternalResources\imgui\imgui.cpp" />
     <ClCompile Include="ExternalResources\imgui\imgui_demo.cpp" />
     <ClCompile Include="ExternalResources\imgui\imgui_draw.cpp" />
@@ -169,6 +171,8 @@
     <ClInclude Include="Bulletcallback.h" />
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="convert.h" />
+    <ClInclude Include="DepthMap.h" />
+    <ClInclude Include="SkyBox.h" />
     <ClInclude Include="ExternalResources\imgui\imconfig.h" />
     <ClInclude Include="ExternalResources\imgui\imgui.h" />
     <ClInclude Include="ExternalResources\imgui\imgui_impl_glfw.h" />
@@ -194,7 +198,12 @@
     <None Include="anim.frag" />
     <None Include="anim.vert" />
     <None Include="cube.frag" />
+    <None Include="cube1.frag" />
     <None Include="cube.vert" />
+    <None Include="cubeMap.frag" />
+    <None Include="cubeMap.vert" />
+    <None Include="depthShader.frag" />
+    <None Include="depthShader.vert" />
     <None Include="lightcube.frag" />
     <None Include="lightcube.vert" />
     <None Include="model.frag" />

@@ -72,6 +72,12 @@
     <ClCompile Include="ExternalResources\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="SkyBox.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="DepthMap.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h">
@@ -149,6 +155,12 @@
     <ClInclude Include="ExternalResources\imgui\imstb_truetype.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="SkyBox.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="DepthMap.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.vert" />
@@ -156,10 +168,15 @@
     <None Include="model.frag" />
     <None Include="model.vert" />
     <None Include="cube.vert" />
-    <None Include="cube.frag" />
     <None Include="lightcube.frag" />
     <None Include="lightcube.vert" />
     <None Include="anim.frag" />
     <None Include="anim.vert" />
+    <None Include="cubeMap.vert" />
+    <None Include="cubeMap.frag" />
+    <None Include="depthShader.vert" />
+    <None Include="depthShader.frag" />
+    <None Include="cube1.frag" />
+    <None Include="cube.frag" />
   </ItemGroup>
 </Project>
