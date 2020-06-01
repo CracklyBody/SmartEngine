@@ -1,5 +1,5 @@
 #version 400 core
-in vec3 normal;
+in vec3 Normal;
 in vec3 FragPos;
 in vec2 TexCoords;
 
@@ -38,12 +38,12 @@ uniform vec3 viewPos;
 
 out vec4 frag_colour;
 
-vec3 CalcDirLight(DirLight light, vec3 normal,vec3 viewDir);
-vec3 CalcPointLight(PointLight light,vec3 normal, vec3 fragPos, vec3 viewDir);
+vec3 CalcDirLight(DirLight light, vec3 Normal,vec3 viewDir);
+vec3 CalcPointLight(PointLight light,vec3 Normal, vec3 fragPos, vec3 viewDir);
 
 void main()
 {
-	vec3 norm = normalize(normal);
+	vec3 norm = normalize(Normal);
 	vec3 viewDir = normalize(viewPos - FragPos);
 
 	vec3 result = CalcDirLight(dirlight,norm, viewDir);
@@ -54,12 +54,12 @@ void main()
 	frag_colour = vec4(result, 1.0);
 };
 
-vec3 CalcDirLight(DirLight light, vec3 normal,vec3 viewDir)
+vec3 CalcDirLight(DirLight light, vec3 Normal,vec3 viewDir)
 {
 	vec3 lightDir = normalize(-light.direction);
 
-	float diff = max(dot(normal, lightDir),0.0);
-	vec3 reflectDir = reflect(-lightDir,normal);
+	float diff = max(dot(Normal, lightDir),0.0);
+	vec3 reflectDir = reflect(-lightDir,Normal);
 	float spec = pow(max(dot(viewDir,reflectDir),0.0),material.shininess);
 
 	vec3 ambient = light.ambient * vec3(texture(material.diffuse,TexCoords));
@@ -68,13 +68,13 @@ vec3 CalcDirLight(DirLight light, vec3 normal,vec3 viewDir)
 	return (ambient + diffuse + specular);
 }
 
-vec3 CalcPointLight(PointLight light,vec3 normal, vec3 fragPos, vec3 viewDir)
+vec3 CalcPointLight(PointLight light,vec3 Normal, vec3 fragPos, vec3 viewDir)
 {
 	vec3 lightDir = normalize(light.position - fragPos);
 
-	float diff = max(dot(normal,lightDir),0.0);
+	float diff = max(dot(Normal,lightDir),0.0);
 
-	vec3 reflectDir = reflect(-lightDir,normal);
+	vec3 reflectDir = reflect(-lightDir,Normal);
 	float spec = pow(max(dot(viewDir,reflectDir),0.0),material.shininess);
 
 	float distance1 = length(light.position  - fragPos);

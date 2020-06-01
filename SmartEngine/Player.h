@@ -32,7 +32,7 @@ private:
 	btVector3 getAxis();
 	float calculateHorizontalDistance();
 	float calculateVerticalDostance();
-	float distanceFromPlayer = 50.f;
+	float distanceFromPlayer = 0.f;
 	float horizontalDistance = 0.f;
 	float verticalDistance = 0.f;
 	glm::vec3 cameraPos;

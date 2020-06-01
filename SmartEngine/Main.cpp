@@ -117,14 +117,17 @@ int main() {
     ShaderLoader* anim = new ShaderLoader();
     anim->loadShaders("anim.vert", "anim.frag");
     // Load Models and AnimModels
-    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    Model nanosuit((char*)"models/guns/m4/m4.obj");
     //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/basiclevel2.obj");
+    Model level((char*)"models/gamelevels/basiclevel.obj");
     Model cube((char*)"models/acube/cube.obj");
     GameObject* object = new GameObject(); //create model 
     // DEPTHMAP LOAD
     DepthMap depthmap;
+    cubes.Use();
+    cubes.setInt("diffuseTexture", 0);
+    cubes.setInt("shadowMap", 1);
     // SKYBOX LOAD--------
     SkyBox skybox(std::vector<std::string>({ 
         "skybox/right.jpg","skybox/left.jpg",
@@ -220,7 +223,7 @@ int main() {
         //----------------SHADOW MAP
         glm::mat4 lightProjection, lightView;
         glm::mat4 lightSpaceMatrix;
-        float near_plane = 1.0f, far_plane = 1000.5f;
+        float near_plane = 1.0f, far_plane = 1000.0f;
         lightProjection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, near_plane, far_plane);
         lightView = glm::lookAt(depthmap.lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         lightSpaceMatrix = lightProjection * lightView;
@@ -240,7 +243,8 @@ int main() {
                 sphere->getMotionState()->getWorldTransform(t);
                 float mat[16];
                 t.getOpenGLMatrix(mat);
-                glm::mat4 trans = glm::make_mat4(mat);
+                glm::mat4 trans = glm::mat4(1.0f);
+                trans = glm::make_mat4(mat);
                 depthShader.setMat4("model", trans);
                 depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -336,10 +340,10 @@ int main() {
                 cubes.Use();
                 glm::mat4 trans = glm::make_mat4(mat);
                 glm::mat4 view = glm::mat4(1.0f);
-                if (bodies[i]->hit == true)
+                /*if (bodies[i]->hit == true)
                     cubes.setVec3("color", glm::vec3(0.0, 1.0, 0.0));
                 else
-                    cubes.setVec3("color", glm::vec3(0.0, 0.0, 1.0));
+                    cubes.setVec3("color", glm::vec3(0.0, 0.0, 1.0));*/
                 view = player.lookAt();
                 cubes.setMat4("view", view);
                 glm::mat4 projection = glm::mat4(1.0f);
@@ -349,24 +353,24 @@ int main() {
                 cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
                 cubes.setVec3("lightPos", depthmap.lightPos);
                 cubes.setVec3("viewPos", player.getCameraPos());
-                cubes.setInt("material.diffuse", 0);
-                cubes.setInt("material.specular", 1);
-                cubes.setVec3("viewPos", player.getCameraPos());
-                cubes.setFloat("material.shininess", 32.0f);
+                //cubes.setInt("material.diffuse", 0);
+                //cubes.setInt("material.specular", 1);
+                //cubes.setVec3("viewPos", player.getCameraPos());
+                //cubes.setFloat("material.shininess", 32.0f);
                 
-                // directional light
-                cubes.setVec3("dirlight.direction", -0.2f, -1.0f, -0.3f);
-                cubes.setVec3("dirlight.ambient", 0.05f, 0.05f, 0.05f);
-                cubes.setVec3("dirlight.diffuse", 0.4f, 0.4f, 0.4f);
-                cubes.setVec3("dirlight.specular", 0.5f, 0.5f, 0.5f);
-                
-                cubes.setVec3("pointLight[0].position", light1.lightspos);
-                cubes.setVec3("pointLight[0].ambient", 0.05f, 0.05f, 0.05f);
-                cubes.setVec3("pointLight[0].diffuse", 0.8f, 0.8f, 0.8f);
-                cubes.setVec3("pointLight[0].specular", 1.0f, 1.0f, 1.0f);
-                cubes.setFloat("pointLight[0].constant", 1.0f);
-                cubes.setFloat("pointLight[0].linear", 0.09);
-                cubes.setFloat("pointLight[0].quadratic", 0.032);
+                //// directional light
+                //cubes.setVec3("dirlight.direction", -0.2f, -1.0f, -0.3f);
+                //cubes.setVec3("dirlight.ambient", 0.05f, 0.05f, 0.05f);
+                //cubes.setVec3("dirlight.diffuse", 0.4f, 0.4f, 0.4f);
+                //cubes.setVec3("dirlight.specular", 0.5f, 0.5f, 0.5f);
+                //
+                //cubes.setVec3("pointLight[0].position", light1.lightspos);
+                //cubes.setVec3("pointLight[0].ambient", 0.05f, 0.05f, 0.05f);
+                //cubes.setVec3("pointLight[0].diffuse", 0.8f, 0.8f, 0.8f);
+                //cubes.setVec3("pointLight[0].specular", 1.0f, 1.0f, 1.0f);
+                //cubes.setFloat("pointLight[0].constant", 1.0f);
+                //cubes.setFloat("pointLight[0].linear", 0.09);
+                //cubes.setFloat("pointLight[0].quadratic", 0.032);
                 nanosuit.Draw(cubes);
                 
 
@@ -448,7 +452,7 @@ int main() {
         ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
         ImGui::Checkbox("Another Window", &show_another_window);
 
-        ImGui::SliderFloat("float", &linearveloc, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("float", &depthmap.lightPos.y, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)

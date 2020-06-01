@@ -1,0 +1,25 @@
+# Blender MTL File: 'newm4.blend'
+# Material Count: 2
+
+newmtl Material__0.001
+Ns 10.000002
+Ka 1.000000 1.000000 1.000000
+Kd 0.588000 0.588000 0.588000
+Ks 0.000000 0.000000 0.000000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 1
+map_Kd p3dm.ru_Tex_0012_1_59.dds
+
+newmtl Material__39
+Ns 212.754869
+Ka 0.099338 0.099338 0.099338
+Kd 0.588000 0.588000 0.588000
+Ks 0.443709 0.443709 0.443709
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 3
+map_Bump -bm 0.140017 m4_Material__39_Normal.png
+map_Kd m4_Material__39_Diffuse.png

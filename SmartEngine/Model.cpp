@@ -230,10 +230,14 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 		vector.y = mesh->mVertices[i].y;
 		vector.z = mesh->mVertices[i].z;
 		vertex.Position = vector;
-		vector.x = mesh->mNormals[i].x;
-		vector.y = mesh->mNormals[i].y;
-		vector.z = mesh->mNormals[i].z;
-		vertex.Normal = vector;
+		if (mesh->mNormals != NULL) {
+			vector.x = mesh->mNormals[i].x;
+			vector.y = mesh->mNormals[i].y;
+			vector.z = mesh->mNormals[i].z;
+			vertex.Normal = vector;
+		}
+		else
+			vertex.Normal = glm::vec3(0.f, 1.f, 0.f);
 		if (mesh->mTextureCoords[0])
 		{
 			glm::vec2 vec;

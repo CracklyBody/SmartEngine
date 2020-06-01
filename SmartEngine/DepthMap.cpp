@@ -1,7 +1,7 @@
 #include "DepthMap.h"
 
 DepthMap::DepthMap() {
-	lightPos = glm::vec3(-2.0f, 200.0f, -1.0f);
+	lightPos = glm::vec3(0.0f, 50.0f, 1.0f);
 	SHADOW_WIDTH = 1024;
 	SHADOW_HEIGHT = 1024;
 	glGenFramebuffers(1, &depthMapFbo);
