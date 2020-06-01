@@ -180,9 +180,9 @@ int main() {
     //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
     // ADD ANIMATION MODEL
-    object->createGraphicsObject("models/wort/wort.fbx"); //get data from file
+    object->createGraphicsObject("models/basicmodels/m4.fbx"); //get data from file
     //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    object->playAnimation(new Animation("Orange", vec2(0, 195), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    object->playAnimation(new Animation("anim", vec2(0, 1147), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
