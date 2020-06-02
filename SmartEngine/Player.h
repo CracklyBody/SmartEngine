@@ -20,13 +20,25 @@ public:
 	void updateCamPos();
 	void updatekey();
 	void updatemouse(double xpos, double ypos);
+	void make_hit(int damage);
 	glm::vec3 getCameraPos();
 	glm::vec3 getCameraLook();
 	glm::mat4 lookAt();
+	btDiscreteDynamicsWorld* dynamicsWorld;
 	GLFWwindow* window;
 	bulletObject* model;
+	int id_in_lobby_arr = 0;
 	bool cursor = false;
 	float elapsedtime = 0.0f;
+	glm::vec3 get_camera_front();
+	glm::vec3 get_camera_pos();
+	glm::vec3 get_camera_up();
+	glm::vec3 get_camera_target();
+	float get_cam_spd();
+	float get_boost_bar();
+	void set_boost_bar(float n);
+	void set_cam_spd(float n);
+	
 private:
 	float getModelAngle();
 	btVector3 getAxis();
@@ -42,6 +54,7 @@ private:
 	bool freeze = false;
 	float cameraSpeed = 10.0f;
 	float boostBar = 100.0f;
+	int health = 100;
 	
 	GLfloat lastX = 640;
 	GLfloat lastY = 480;

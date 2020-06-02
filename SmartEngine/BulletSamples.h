@@ -57,7 +57,8 @@ unsigned int addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld, std:
         btMotionState* motion = new btDefaultMotionState(trans);
         btRigidBody::btRigidBodyConstructionInfo info(0, motion, shape, inertia);
         btRigidBody* body = new btRigidBody(info);
-       // body->setFriction(btScalar(0.9)); // Трение
+        //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        body->setFriction(btScalar(1.0)); // Трение
         if (i == 0)
             pos = bodies->size();
         dynamicsworld->addRigidBody(body);

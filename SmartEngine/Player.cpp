@@ -64,6 +64,21 @@ void Player::updatekey()
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if (glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+    {
+        // ---------------RAYCASTING
+        btCollisionWorld::ClosestRayResultCallback raycallback(btVector3(getCameraPos().x, getCameraPos().y, getCameraPos().z), btVector3(getCameraLook().x * 10000, getCameraLook().y * 10000, getCameraLook().z * 10000));
+        dynamicsWorld->rayTest(btVector3(getCameraPos().x, getCameraPos().y, getCameraPos().z), btVector3(getCameraLook().x * 10000, getCameraLook().y * 10000, getCameraLook().z * 10000),raycallback);
+        if (raycallback.hasHit())
+        {
+            // Find if we hit the player
+            bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
+
+            if (ob1 != NULL)
+                ob1->hit = true;
+        }
+        //----------------
+    }
 }
 
 void Player::updateCamPos()
@@ -153,3 +168,17 @@ float Player::calculateVerticalDostance()
 {
     return distanceFromPlayer * sin(glm::radians(-pitch));
 }
+
+void Player::make_hit(int damage)
+{
+    health -= damage;
+}
+
+glm::vec3 Player::get_camera_front(){ return cameraFront; }
+glm::vec3 Player::get_camera_pos(){ return cameraPos; }
+glm::vec3 Player::get_camera_up() { return cameraUp; }
+glm::vec3 Player::get_camera_target() { return cameraTarget; }
+float Player::get_cam_spd() { return cameraSpeed; }
+float Player::get_boost_bar() { return boostBar; }
+void Player::set_boost_bar(float n) { boostBar = n; }
+void Player::set_cam_spd(float n) { cameraSpeed = n; }

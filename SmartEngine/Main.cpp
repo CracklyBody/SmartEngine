@@ -20,7 +20,8 @@
 // Classes
 #include "log.h"
 //#include "Model.h"
-#include "Player.h"
+#include "Lobby.h"
+//#include "Player.h"
 #include "Bulletcallback.h"
 #include "keycallback.h"
 #include "Light.h"
@@ -79,10 +80,11 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     //glfwSetWindowSizeCallback(window, window_size_callback);
+    Lobby main_lobby;
     Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
-
-    player.setupdayekey();
-    player.setupdatemouse();
+    main_lobby.add_player(&player);
+    //player.setupdayekey();
+    //player.setupdatemouse();
     // get version info
     const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
     const GLubyte* version = glGetString(GL_VERSION); // version as a string
@@ -117,7 +119,8 @@ int main() {
     ShaderLoader* anim = new ShaderLoader();
     anim->loadShaders("anim.vert", "anim.frag");
     // Load Models and AnimModels
-    Model nanosuit((char*)"models/guns/m4/m4.obj");
+    Model nanosuit((char*)"models/nanosuit/nanosuit.obj");
+    Model m4((char*)"models/guns/m4/m4.obj");
     //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
     Model level((char*)"models/gamelevels/basiclevel.obj");
@@ -191,17 +194,36 @@ int main() {
     float linearveloc = 20.0f;
     // ADD Main Player Model
     {
-        btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, 0.f, 30.f, 2.f, 1.f, dynamicsWorld);
+        btRigidBody* cube2 = addBox(17.196674f, 100.196674f, 17.196674f, 0.f, 30.f, 2.f, 1.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
         glm::vec3 look = player.getCameraLook();
         cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
         cubee->body->setAngularFactor(0.f);
+        cubee->type = 0;
         player.model = cubee;
         bodies.push_back(cubee);
         cube2->setUserPointer(bodies[bodies.size() - 1]);
+        player.id_in_lobby_arr = main_lobby.find_playerid_by_obj_id(player.model->id);
+        player.dynamicsWorld = dynamicsWorld;
+        main_lobby.set_update_mouse(player.id_in_lobby_arr);
     }
-
+    float dummies[] = { 100.f,100.f,10.f,
+                        100.f,100.f,30.f,
+                        300.f,100.f,10.f,
+                        -100.f,100.f,10.f };
+    // Add some dummies to level
+    for (int i = 0; i < 4; i++)
+    {
+        btRigidBody* cube2 = addBox(17.196674f, 60.196674f, 17.196674f, dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2], 10.f, dynamicsWorld);
+        glm::vec3 look = player.getCameraLook();
+        //cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
+        //cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
+        cubee->type = 1;
+        bodies.push_back(cubee);
+        cube2->setUserPointer(bodies[bodies.size() - 1]);
+    }
     while (!glfwWindowShouldClose(window))
     {
         int km = 0;
@@ -214,7 +236,7 @@ int main() {
         lastTime = currentTime;
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         // Update Keyboard and Camera
-        player.updatekey();
+        main_lobby.update_key(player.id_in_lobby_arr);
         player.updateCamPos();
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
@@ -274,21 +296,12 @@ int main() {
         // reset viewport
         glViewport(0, 0, WIDTH, HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // ---------------RAYCASTING
-        btCollisionWorld::ClosestRayResultCallback raycallback (btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x*10000, player.getCameraLook().y*10000, player.getCameraLook().z*10000));
-        //dynamicsWorld->rayTest(btVector3(player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z), btVector3(player.getCameraLook().x * 10000, player.getCameraLook().y * 10000, player.getCameraLook().z * 10000),raycallback);
-        if (raycallback.hasHit())
-        {
-            bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
-            if(ob1!=NULL)
-                ob1->hit = true;
-        }
-        //----------------
+       
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         shader.Use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         {
-            btRigidBody* cube2 = addBox(17.196674f, 17.196674f, 17.196674f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 10000000.f, dynamicsWorld);
+            btRigidBody* cube2 = addBox(17.196674f, 50.196674f, 17.196674f, player.getCameraPos().x, player.getCameraPos().y, player.getCameraPos().z, 10000000.f, dynamicsWorld);
             glm::vec3 look = player.getCameraLook();
             cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
             cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
@@ -371,7 +384,16 @@ int main() {
                 //cubes.setFloat("pointLight[0].constant", 1.0f);
                 //cubes.setFloat("pointLight[0].linear", 0.09);
                 //cubes.setFloat("pointLight[0].quadratic", 0.032);
-                nanosuit.Draw(cubes);
+                if (bodies[i]->type == 1)
+                {
+                    
+                    trans = glm::translate(trans,glm::vec3(0.f,-30.0f,0.f));
+                    trans = glm::scale(trans, glm::vec3(4.2f));
+                    cubes.setMat4("model", trans);
+                    nanosuit.Draw(cubes);
+                }
+                else
+                    m4.Draw(cubes);
                 
 
             }
