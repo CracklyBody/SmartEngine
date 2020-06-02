@@ -172,6 +172,7 @@ float Player::calculateVerticalDostance()
 void Player::make_hit(int damage)
 {
     health -= damage;
+    SoundEngine->play2D("sounds/lego_yoda_death.mp3");
 }
 
 glm::vec3 Player::get_camera_front(){ return cameraFront; }

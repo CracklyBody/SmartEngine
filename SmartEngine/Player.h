@@ -6,6 +6,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+// AUDIO library
+#include "irrKlang/irrKlang.h"
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "Model.h"
@@ -36,9 +39,9 @@ public:
 	glm::vec3 get_camera_target();
 	float get_cam_spd();
 	float get_boost_bar();
+	irrklang::ISoundEngine* SoundEngine;
 	void set_boost_bar(float n);
 	void set_cam_spd(float n);
-	
 private:
 	float getModelAngle();
 	btVector3 getAxis();

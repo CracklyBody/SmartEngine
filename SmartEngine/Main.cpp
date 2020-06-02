@@ -44,7 +44,8 @@ GLfloat pitch = 0.0f;
 int count = 0;
 
 int main() {
-
+    // Create sound engine
+    irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
     float points[]{
         0.0f, 0.5f, 0.0f,
         0.5f, -0.5f, 0.0f,
@@ -82,6 +83,8 @@ int main() {
     //glfwSetWindowSizeCallback(window, window_size_callback);
     Lobby main_lobby;
     Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
+    player.SoundEngine = SoundEngine;
+    SoundEngine->setSoundVolume(irrklang::ik_f32(0.2f));
     main_lobby.add_player(&player);
     //player.setupdayekey();
     //player.setupdatemouse();
@@ -216,9 +219,10 @@ int main() {
     for (int i = 0; i < 4; i++)
     {
         btRigidBody* cube2 = addBox(17.196674f, 60.196674f, 17.196674f, dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2], 10.f, dynamicsWorld);
+        cube2->forceActivationState(DISABLE_DEACTIVATION);
         glm::vec3 look = player.getCameraLook();
         //cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
-        //cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+        cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
         cubee->type = 1;
         bodies.push_back(cubee);
@@ -395,7 +399,6 @@ int main() {
                 else
                     m4.Draw(cubes);
                 
-
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
                 renderPlane(bodies[i]->body);

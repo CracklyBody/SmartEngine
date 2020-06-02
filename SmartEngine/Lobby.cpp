@@ -64,6 +64,8 @@ void Lobby::update_key(int i)
         glfwSetWindowShouldClose(players[i]->window, true);
     if (glfwGetMouseButton(players[i]->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
+        if(!players[0]->SoundEngine->isCurrentlyPlaying("sounds/rifle_burstcut.mp3"))
+            players[0]->SoundEngine->play2D("sounds/rifle_burstcut.mp3");
         // ---------------RAYCASTING
         btCollisionWorld::ClosestRayResultCallback raycallback(btVector3(players[i]->getCameraPos().x, players[i]->getCameraPos().y, players[i]->getCameraPos().z), btVector3(players[i]->getCameraLook().x * 10000, players[i]->getCameraLook().y * 10000, players[i]->getCameraLook().z * 10000));
         players[i]->dynamicsWorld->rayTest(btVector3(players[i]->getCameraPos().x, players[i]->getCameraPos().y, players[i]->getCameraPos().z), btVector3(players[i]->getCameraLook().x * 10000, players[i]->getCameraLook().y * 10000, players[i]->getCameraLook().z * 10000), raycallback);
@@ -78,6 +80,11 @@ void Lobby::update_key(int i)
                 if (id != -1)
                 {
                     make_damage(id, 10);
+                }
+                else
+                {
+                    glm::vec3 look = players[i]->getCameraLook();
+                    ob1->body->applyCentralForce(btVector3(look.x*100, look.y* 100, look.z* 100));
                 }
             }
         }
