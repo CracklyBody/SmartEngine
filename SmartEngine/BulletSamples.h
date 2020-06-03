@@ -30,6 +30,8 @@ btRigidBody* addBox(float width, float height, float depth, float x, float y, fl
     btMotionState* motion = new btDefaultMotionState(t);
     btRigidBody::btRigidBodyConstructionInfo info(mass, motion, box, inertia);
     btRigidBody* body = new btRigidBody(info);
+    body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
     dynamicsWorld->addRigidBody(body);
     return body;
 }
@@ -57,6 +59,9 @@ unsigned int addmodel(Model* model, btDiscreteDynamicsWorld* dynamicsworld, std:
         btMotionState* motion = new btDefaultMotionState(trans);
         btRigidBody::btRigidBodyConstructionInfo info(0, motion, shape, inertia);
         btRigidBody* body = new btRigidBody(info);
+        //body->setCollisionFlags(btCollisionObject:: CF_NO_CONTACT_RESPONSE);
+        body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+
         //body->setCollisionFlags(body->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         body->setFriction(btScalar(1.0)); // Трение
         if (i == 0)

@@ -61,7 +61,9 @@ void Player::updatekey()
     }   
     if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
     {
-        model->body->applyCentralForce(btVector3(0.f, 10.f, 0.f));
+        model->body->activate();
+        //model->body->setLinearVelocity(btVector3(0.f, 10000000000000.f, 0.f));
+        model->body->applyCentralImpulse(btVector3(0.f, 10000000000000.f, 0.f));
     }
     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);

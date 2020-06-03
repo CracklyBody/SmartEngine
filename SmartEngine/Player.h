@@ -45,6 +45,9 @@ public:
 	void set_boost_bar(float n);
 	void set_cam_spd(float n);
 	void render_player_info();
+	float jump_elaps = 0.f;
+	bool in_jump = false;
+
 private:
 	Font* font;
 	void load_font();

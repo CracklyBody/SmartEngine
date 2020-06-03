@@ -157,15 +157,12 @@ int main() {
 
     // Start initialize Bullet
     btBroadphaseInterface* broadphase = new btDbvtBroadphase();
-
     btDefaultCollisionConfiguration* collisionConfiguration = new btDefaultCollisionConfiguration();
     btCollisionDispatcher* dispatcher = new btCollisionDispatcher(collisionConfiguration);
 
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
     btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
     dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
-
-    std::vector<btRigidBody*> rigidbodies;
 
     btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
     btScalar mass(1.f);
@@ -177,11 +174,11 @@ int main() {
     btTransform t;
     t.setIdentity();
     t.setOrigin(btVector3(0,0,0));
-    btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0),0);
+    //btStaticPlaneShape* plane = new btStaticPlaneShape(btVector3(0, 1, 0),0);
     btMotionState* motion = new btDefaultMotionState(t);
-    btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
+    //btRigidBody::btRigidBodyConstructionInfo info(0, motion, plane);
     // ADD FIRST RIGID BODY
-    btRigidBody* body = new btRigidBody(info);
+    //btRigidBody* body = new btRigidBody(info);
     unsigned int pomodel = addmodel(&level, dynamicsWorld,&bodies);
     double lastTime = glfwGetTime();
     int nbFrames = 0;
@@ -200,10 +197,10 @@ int main() {
     float linearveloc = 20.0f;
     // ADD Main Player Model
     {
-        btRigidBody* cube2 = addBox(17.196674f, 100.196674f, 17.196674f, 0.f, 30.f, 2.f, 1.f, dynamicsWorld);
+        btRigidBody* cube2 = addBox(17.196674f, 100.196674f, 17.196674f, 0.f, 30.f, 2.f, 10.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
+       
         glm::vec3 look = player.getCameraLook();
-        cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
         cubee->body->setAngularFactor(0.f);
         cubee->type = 0;
@@ -240,7 +237,13 @@ int main() {
         float deltaTime = currentTime - lastTime;
         // Change player time for maximize smooth movement
         player.elapsedtime = (currentTime - lastTime)/1;
-
+        if (player.in_jump)
+            if (player.jump_elaps >= 0.9f) {
+                player.jump_elaps = 0.f;
+                player.in_jump = false;
+            }
+            else
+                player.jump_elaps+= player.elapsedtime;
         lastTime = currentTime;
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         // Update Keyboard and Camera
