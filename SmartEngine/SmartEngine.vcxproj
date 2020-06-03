@@ -87,7 +87,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)/SmartEngine/ExternalResources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/SmartEngine/ExternalResources;$(SolutionDir)/SmartEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>false</OpenMPSupport>
     </ClCompile>
     <Link>
@@ -95,7 +95,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <AdditionalLibraryDirectories>$(SolutionDir)/SmartEngine/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>irrKlang.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;SOIL.lib;assimp-vc142-mtd.lib;opengl32.lib;glfw3dll.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;irrKlang.lib;BulletCollision.lib;BulletDynamics.lib;LinearMath.lib;SOIL.lib;assimp-vc142-mtd.lib;opengl32.lib;glfw3dll.lib;glew32.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -146,6 +146,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Bone.cpp" />
     <ClCompile Include="DepthMap.cpp" />
+    <ClCompile Include="Font.cpp" />
     <ClCompile Include="Lobby.cpp" />
     <ClCompile Include="SkyBox.cpp" />
     <ClCompile Include="ExternalResources\imgui\imgui.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="convert.h" />
     <ClInclude Include="DepthMap.h" />
+    <ClInclude Include="Font.h" />
     <ClInclude Include="Lobby.h" />
     <ClInclude Include="SkyBox.h" />
     <ClInclude Include="ExternalResources\imgui\imconfig.h" />
@@ -206,6 +208,8 @@
     <None Include="cubeMap.vert" />
     <None Include="depthShader.frag" />
     <None Include="depthShader.vert" />
+    <None Include="font.frag" />
+    <None Include="font.vert" />
     <None Include="lightcube.frag" />
     <None Include="lightcube.vert" />
     <None Include="model.frag" />

@@ -6,12 +6,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
 // AUDIO library
 #include "irrKlang/irrKlang.h"
 
 #define _USE_MATH_DEFINES
 #include <cmath>
 #include "Model.h"
+#include "Font.h"
 // Main player class, has func for update camera and more
 class Player
 {
@@ -42,7 +44,10 @@ public:
 	irrklang::ISoundEngine* SoundEngine;
 	void set_boost_bar(float n);
 	void set_cam_spd(float n);
+	void render_player_info();
 private:
+	Font* font;
+	void load_font();
 	float getModelAngle();
 	btVector3 getAxis();
 	float calculateHorizontalDistance();

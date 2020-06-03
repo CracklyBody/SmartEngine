@@ -5,6 +5,7 @@ const btScalar RADIANS_PER_DEGREE = M_PI / btScalar(180.0);
 Player::Player(glm::vec3 pos,GLFWwindow * window) : cameraPos(pos), window(window)
 {
     glfwSetWindowUserPointer(window, this);
+    load_font();
 }
 
 Player::~Player()
@@ -183,3 +184,15 @@ float Player::get_cam_spd() { return cameraSpeed; }
 float Player::get_boost_bar() { return boostBar; }
 void Player::set_boost_bar(float n) { boostBar = n; }
 void Player::set_cam_spd(float n) { cameraSpeed = n; }
+
+void Player::load_font()
+{
+    font = new Font();
+}
+
+void Player::render_player_info()
+{
+    
+    font->render_text(std::string("Health: "+std::to_string(health)), 25.0f, 25.0f, 0.4f, glm::vec3(1.0, 1.0f, 1.0f));
+
+}

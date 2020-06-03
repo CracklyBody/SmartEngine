@@ -80,6 +80,7 @@ int main() {
     log_gl_param();
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    
     //glfwSetWindowSizeCallback(window, window_size_callback);
     Lobby main_lobby;
     Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
@@ -98,7 +99,9 @@ int main() {
     glEnable(GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
     glfwWindowHint(GLFW_SAMPLES, 4);
-    
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     // IMGUI CONTEXT SETUP
     bool show_demo_window = true;
     bool show_another_window = false;
@@ -230,6 +233,7 @@ int main() {
     }
     while (!glfwWindowShouldClose(window))
     {
+
         int km = 0;
         double currentTime = glfwGetTime();
         nbFrames++;
@@ -396,8 +400,9 @@ int main() {
                     cubes.setMat4("model", trans);
                     nanosuit.Draw(cubes);
                 }
-                else
+                else {
                     m4.Draw(cubes);
+                }
                 
             }
             if (bodies[i]->body->getCollisionShape()->getShapeType() == STATIC_PLANE_PROXYTYPE)
@@ -504,6 +509,8 @@ int main() {
         skybox.draw();
 
         glfwPollEvents();
+        player.render_player_info();
+
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))

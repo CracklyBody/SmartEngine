@@ -81,6 +81,9 @@
     <ClCompile Include="Lobby.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="Font.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="log.h">
@@ -167,6 +170,9 @@
     <ClInclude Include="Lobby.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="Font.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.vert" />
@@ -184,5 +190,7 @@
     <None Include="depthShader.frag" />
     <None Include="cube1.frag" />
     <None Include="cube.frag" />
+    <None Include="font.vert" />
+    <None Include="font.frag" />
   </ItemGroup>
 </Project>
