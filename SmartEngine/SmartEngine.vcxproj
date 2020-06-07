@@ -89,6 +89,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)/SmartEngine/ExternalResources;$(SolutionDir)/SmartEngine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <OpenMPSupport>false</OpenMPSupport>
+      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -171,6 +172,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="Bone.h" />
     <ClInclude Include="Bulletcallback.h" />
+    <ClInclude Include="BulletDebugDrawer.h" />
     <ClInclude Include="BulletSamples.h" />
     <ClInclude Include="convert.h" />
     <ClInclude Include="DepthMap.h" />
@@ -201,6 +203,8 @@
   <ItemGroup>
     <None Include="anim.frag" />
     <None Include="anim.vert" />
+    <None Include="bullet.frag" />
+    <None Include="bullet.vert" />
     <None Include="cube.frag" />
     <None Include="cube1.frag" />
     <None Include="cube.vert" />

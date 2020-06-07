@@ -83,12 +83,12 @@ int main() {
     
     //glfwSetWindowSizeCallback(window, window_size_callback);
     Lobby main_lobby;
-    Player player(glm::vec3(0.0f, 0.0f, 0.3f),window);
+    Player player("DADDY",glm::vec3(0.0f, 0.0f, 0.3f),window);
     player.SoundEngine = SoundEngine;
     SoundEngine->setSoundVolume(irrklang::ik_f32(0.2f));
     main_lobby.add_player(&player);
     //player.setupdayekey();
-    //player.setupdatemouse();
+    player.setupdatemouse();
     // get version info
     const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
     const GLubyte* version = glGetString(GL_VERSION); // version as a string
@@ -162,6 +162,9 @@ int main() {
 
     btSequentialImpulseConstraintSolver* solver = new btSequentialImpulseConstraintSolver;
     btDiscreteDynamicsWorld* dynamicsWorld = new btDiscreteDynamicsWorld(dispatcher,broadphase,solver,collisionConfiguration);
+    //dynamicsWorld->setDebugDrawer(main_lobby.debug_drawer);
+    //dynamicsWorld->debugDrawWorld();
+    //dynamicsWorld->getDebugDrawer()->setDebugMode(btIDebugDraw::DBG_DrawWireframe);
     dynamicsWorld->setGravity(btVector3(0, -9.81f, 0));
 
     btCollisionShape* boxCollisionShape = new btBoxShape(btVector3(1.0f, 1.0f, 1.0f));
@@ -189,9 +192,9 @@ int main() {
     //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
     // ADD ANIMATION MODEL
-    object->createGraphicsObject("models/basicmodels/m4.fbx"); //get data from file
+    object->createGraphicsObject("models/guns/m4.fbx"); //get data from file
     //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    object->playAnimation(new Animation("anim", vec2(0, 1147), 0.60, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    object->playAnimation(new Animation("anim", vec2(0, 120), 0.30, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
 
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
@@ -200,7 +203,6 @@ int main() {
         btRigidBody* cube2 = addBox(17.196674f, 100.196674f, 17.196674f, 0.f, 30.f, 2.f, 10.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
        
-        glm::vec3 look = player.getCameraLook();
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
         cubee->body->setAngularFactor(0.f);
         cubee->type = 0;
@@ -209,7 +211,8 @@ int main() {
         cube2->setUserPointer(bodies[bodies.size() - 1]);
         player.id_in_lobby_arr = main_lobby.find_playerid_by_obj_id(player.model->id);
         player.dynamicsWorld = dynamicsWorld;
-        main_lobby.set_update_mouse(player.id_in_lobby_arr);
+        player.set_window_pointer();
+        main_lobby.set_update_mouse(0);
     }
     float dummies[] = { 100.f,100.f,10.f,
                         100.f,100.f,30.f,
@@ -220,17 +223,24 @@ int main() {
     {
         btRigidBody* cube2 = addBox(17.196674f, 60.196674f, 17.196674f, dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2], 10.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
-        glm::vec3 look = player.getCameraLook();
-        //cube2->setLinearVelocity(btVector3(look.x * linearveloc, look.y * linearveloc, look.z * linearveloc));
         cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
+        Player *new_player = new Player("Dummy" + std::to_string(i),glm::vec3(dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2]),window);
+        new_player->model = cubee;
+        new_player->SoundEngine = SoundEngine;
+        new_player->dynamicsWorld = dynamicsWorld;
+        main_lobby.add_player(new_player);
+        new_player->id_in_lobby_arr = main_lobby.find_playerid_by_obj_id(new_player->model->id);
         cubee->type = 1;
         bodies.push_back(cubee);
         cube2->setUserPointer(bodies[bodies.size() - 1]);
     }
+    float rotate_x = 0.f;
+    float rotate_y = 0.f;
+    float rotate_z = 0.f;
     while (!glfwWindowShouldClose(window))
     {
-
+        
         int km = 0;
         double currentTime = glfwGetTime();
         nbFrames++;
@@ -248,7 +258,9 @@ int main() {
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         // Update Keyboard and Camera
         main_lobby.update_key(player.id_in_lobby_arr);
+        main_lobby.update_respawn(player.elapsedtime);
         player.updateCamPos();
+        
         // Start the Dear ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -307,8 +319,11 @@ int main() {
         // reset viewport
         glViewport(0, 0, WIDTH, HEIGHT);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-       
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        if (player.is_shoot) {
+            player.draw_line();
+            player.is_shoot = false;
+        }
+
         shader.Use();
         if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
         {
@@ -333,6 +348,14 @@ int main() {
         else
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         km = 0;
+        {
+            /*glm::mat4 projection = glm::mat4(1.0f);
+            projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 100000.0f);
+            main_lobby.debug_drawer->line_shader = main_lobby.bullet_shader;
+            main_lobby.bullet_shader->Use();
+            main_lobby.debug_drawer->SetMatrices(player.lookAt(), projection);
+            main_lobby.debug_drawer->drawLine(btVector3(0.f, 0.f, 0.f), btVector3(0.f, 1000.f, 0.f), btVector3(1.0f, 1.f, 0.f));*/
+        }
         /*
          *In this cycle we draw every body in collision world
          *Every body has a shapetype
@@ -401,10 +424,28 @@ int main() {
                     trans = glm::translate(trans,glm::vec3(0.f,-30.0f,0.f));
                     trans = glm::scale(trans, glm::vec3(4.2f));
                     cubes.setMat4("model", trans);
-                    nanosuit.Draw(cubes);
+                    nanosuit.Draw(cubes);     
+                    //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
+                    /*anim->use();
+                    anim->setMat4("view", view);
+                    anim->setMat4("projection", projection);
+                    anim->setMat4("model", trans);
+                    object->render(anim);*/
                 }
                 else {
-                    m4.Draw(cubes);
+                    /*trans = glm::rotate(trans, glm::radians(rotate_x), glm::vec3(-1.0f, 0.f, 0.f));
+                    trans = glm::rotate(trans, glm::radians(rotate_y), glm::vec3(0.f, 1.f, 0.f));
+                    trans = glm::rotate(trans, glm::radians(rotate_z), glm::vec3(0.0f, 0.f, 1.f));*/
+                    glm::quat qut(cos(glm::radians(rotate_x / 2)), 0, sin(glm::radians(rotate_y / 2)) * 1, 0);
+                    glm::mat4 qut_mat = glm::mat4_cast(qut);
+                    trans = trans * qut_mat;
+                    trans = glm::translate(trans, glm::vec3(0.f, 0.f, -30.f));
+                    anim->use();
+                    anim->setMat4("view", view);
+                    anim->setMat4("projection", projection);
+                    anim->setMat4("model", trans);
+                    object->render(anim);
+                    //m4.Draw(cubes);
                 }
                 
             }
@@ -436,6 +477,7 @@ int main() {
                 km++;
             }
         }
+        
         slight.Use();
         glm::mat4 trans = glm::mat4(1.0);
         glm::mat4 view = glm::mat4(1.0f);
@@ -452,7 +494,8 @@ int main() {
         anim->setMat4("view", view);
         anim->setMat4("projection", projection);
         anim->setMat4("model", objectModel);
-        object->render(anim);
+        //object->render(anim);
+        
         //print positions of all objects
         //for (int j = dynamicsWorld->getNumCollisionObjects() - 1; j >= 0; j--)
         //{
@@ -485,7 +528,9 @@ int main() {
         ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
         ImGui::Checkbox("Another Window", &show_another_window);
 
-        ImGui::SliderFloat("float", &depthmap.lightPos.y, 0.0f, 1000.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("floatx", &rotate_x, 0.0f, 360.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("floaty", &rotate_y, 0.0f, 360.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+        ImGui::SliderFloat("floatz", &rotate_z, 0.0f, 360.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
         ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
 
         if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
@@ -513,6 +558,7 @@ int main() {
 
         glfwPollEvents();
         player.render_player_info();
+        player.draw_lobby_info(main_lobby.get_players_info());
 
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);

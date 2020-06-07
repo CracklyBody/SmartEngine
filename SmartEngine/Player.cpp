@@ -2,15 +2,28 @@
 
 const btScalar RADIANS_PER_DEGREE = M_PI / btScalar(180.0);
 
-Player::Player(glm::vec3 pos,GLFWwindow * window) : cameraPos(pos), window(window)
+Player::Player(std::string nickname, glm::vec3 pos, GLFWwindow* window) : nickname(nickname), cameraPos(pos), window(window)
 {
-    glfwSetWindowUserPointer(window, this);
     load_font();
+    bullet_shader = new Shader("bullet.vert", "bullet.frag");
+    debug_drawer = new BulletDebugDrawer_OpenGL();
 }
+
 
 Player::~Player()
 {
 
+}
+
+std::string Player::get_nickname() { return nickname; }
+
+int Player::get_kills() { return kills; }
+
+int Player::get_death() { return death; }
+
+void Player::set_window_pointer()
+{
+    glfwSetWindowUserPointer(window, this);
 }
 
 void Player::setupdayekey()
@@ -35,53 +48,31 @@ glm::vec3 Player::getCameraLook()
 
 void Player::updatekey()
 {
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-    {
-        model->body->applyCentralForce(btVector3(cameraFront.x * cameraSpeed,0.f,cameraFront.z* cameraSpeed));
-    }
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-    {
-        glm::vec3 left = glm::normalize(glm::cross(cameraFront, cameraUp));
-        model->body->applyCentralForce(btVector3(left.x * -cameraSpeed, 0.f, left.z * -cameraSpeed));
+    
+}
 
-    }
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-    {
-        model->body->applyCentralForce(btVector3(cameraFront.x * -cameraSpeed, 0.f, cameraFront.z * -cameraSpeed));
-    }
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-    {
-        glm::vec3 right = glm::normalize(glm::cross(cameraFront, cameraUp));
-        model->body->applyCentralForce(btVector3(right.x * cameraSpeed, 0.f, right.z * cameraSpeed));
-    }
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-    {
-        if (boostBar != 0.0f)
-            cameraSpeed += 1.0f;
-    }   
-    if (glfwGetKey(window, GLFW_KEY_Z) == GLFW_PRESS)
-    {
-        model->body->activate();
-        //model->body->setLinearVelocity(btVector3(0.f, 10000000000000.f, 0.f));
-        model->body->applyCentralImpulse(btVector3(0.f, 10000000000000.f, 0.f));
-    }
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-    if (glfwGetKey(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
-    {
-        // ---------------RAYCASTING
-        btCollisionWorld::ClosestRayResultCallback raycallback(btVector3(getCameraPos().x, getCameraPos().y, getCameraPos().z), btVector3(getCameraLook().x * 10000, getCameraLook().y * 10000, getCameraLook().z * 10000));
-        dynamicsWorld->rayTest(btVector3(getCameraPos().x, getCameraPos().y, getCameraPos().z), btVector3(getCameraLook().x * 10000, getCameraLook().y * 10000, getCameraLook().z * 10000),raycallback);
-        if (raycallback.hasHit())
-        {
-            // Find if we hit the player
-            bulletObject* ob1 = (bulletObject*)(raycallback.m_collisionObject->getUserPointer());
-
-            if (ob1 != NULL)
-                ob1->hit = true;
-        }
-        //----------------
-    }
+void Player::draw_line()
+{
+    glm::mat4 projection = glm::mat4(1.0f);
+    projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 10000.0f);
+    debug_drawer->line_shader = bullet_shader;
+    bullet_shader->Use();
+    glm::mat4 view_ray = glm::mat4(1.f);
+    glm::mat4 model_ray = glm::mat4(1.f);
+    model_ray = glm::translate(model_ray, glm::vec3(0.f, -0.1f, 0.f));
+    view_ray = lookAt();
+    debug_drawer->SetMatrices(view_ray, projection, model_ray);
+    glm::vec3 direction = get_camera_front();
+    direction.x *= 10000;
+    direction.y *= 10000;
+    direction.z *= 10000;
+    glm::vec3 r_cam = getCameraPos();
+    //r_cam.z += 0.5f;
+    /*if (direction.z >= 0.f)
+        r_cam.z += 0.5f;
+    else
+        r_cam.z -= 0.5f;*/
+    debug_drawer->drawLine(btVector3(r_cam.x, r_cam.y, r_cam.z), btVector3(direction.x, direction.y, direction.z), btVector3(1.0f, 1.f, 1.f));
 }
 
 void Player::updateCamPos()
@@ -144,7 +135,7 @@ void Player::updatemouse(double xpos, double ypos)
     cameraFront = glm::normalize(front);
 
     float changedyaw = yaw - 180;
-    btQuaternion q = btQuaternion(-changedyaw * RADIANS_PER_DEGREE, 0.f, 0.0f);
+    btQuaternion q = btQuaternion(-changedyaw * RADIANS_PER_DEGREE,0.0f, -pitch * RADIANS_PER_DEGREE);
     btTransform trans = model->body->getWorldTransform();
     trans.setRotation(q);
     model->body->setWorldTransform(trans);
@@ -174,8 +165,22 @@ float Player::calculateVerticalDostance()
 
 void Player::make_hit(int damage)
 {
-    health -= damage;
-    SoundEngine->play2D("sounds/lego_yoda_death.mp3");
+    if (health > 0) {
+        health -= damage;
+        if (!SoundEngine->isCurrentlyPlaying("sounds/hitmarker.mp3"))
+            SoundEngine->play2D("sounds/hitmarker.mp3");
+        if (health <= 0)
+        {
+            freeze = true;
+            btQuaternion q = btQuaternion(0.f, 0.0f, -87.9f * RADIANS_PER_DEGREE);
+            btTransform trans = model->body->getWorldTransform();
+            trans.setRotation(q);
+            model->body->setWorldTransform(trans);
+            inc_death();
+            SoundEngine->play2D("sounds/lego_yoda_death.mp3");
+
+        }
+    }
 }
 
 glm::vec3 Player::get_camera_front(){ return cameraFront; }
@@ -198,3 +203,34 @@ void Player::render_player_info()
     font->render_text(std::string("Health: "+std::to_string(health)), 25.0f, 25.0f, 0.4f, glm::vec3(1.0, 1.0f, 1.0f));
 
 }
+
+void Player::render_text(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color)
+{
+    font->render_text(text, x, y, scale, color);
+}
+
+void Player::draw_lobby_info(const std::vector<Player*> players)
+{
+    if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
+    {
+        for (int j = 0; j < players.size(); j++)
+        {
+            render_text(players[j]->get_nickname() + "   " + std::to_string(players[j]->get_kills()) + "   " + std::to_string(players[j]->get_death()), 25.0f, 150.0f-j*20, 0.4f, glm::vec3(1.f, 1.f, 1.f));
+        }
+    }
+}
+
+void Player::respawn()
+{
+    dead_time = 10.f;
+    health = 100.f;
+    freeze = false;
+    btQuaternion q = btQuaternion(0.f, 0.0f, 360.0f * RADIANS_PER_DEGREE);
+    btTransform trans = model->body->getWorldTransform();
+    trans.setRotation(q);
+    model->body->setWorldTransform(trans);
+}
+
+void Player::inc_kills() { kills++; }
+void Player::inc_death() { death++; }
+int Player::get_health() { return health; }

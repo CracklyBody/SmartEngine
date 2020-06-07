@@ -14,17 +14,20 @@
 #include <cmath>
 #include "Model.h"
 #include "Font.h"
+#include "BulletDebugDrawer.h"
+
 // Main player class, has func for update camera and more
 class Player
 {
 public:
-	Player(glm::vec3 pos, GLFWwindow* window);
+	Player(std::string nickname,glm::vec3 pos, GLFWwindow* window);
 	~Player();
 	void setupdayekey();
 	void setupdatemouse();
 	void updateCamPos();
 	void updatekey();
 	void updatemouse(double xpos, double ypos);
+	void draw_lobby_info(const std::vector<Player*> players);
 	void make_hit(int damage);
 	glm::vec3 getCameraPos();
 	glm::vec3 getCameraLook();
@@ -45,10 +48,25 @@ public:
 	void set_boost_bar(float n);
 	void set_cam_spd(float n);
 	void render_player_info();
+	void render_text(std::string text, GLfloat x, GLfloat y, GLfloat scale, glm::vec3 color);
+	void draw_line();
+	void set_window_pointer();
+	void respawn();
+	int get_kills();
+	int get_death();
+	int get_health();
+	void inc_kills();
+	void inc_death();
+	std::string get_nickname();
+	float dead_time = 10.f;
 	float jump_elaps = 0.f;
+	bool freeze = false;
 	bool in_jump = false;
+	bool is_shoot = false;
 
 private:
+	BulletDebugDrawer_OpenGL* debug_drawer;
+	Shader* bullet_shader;
 	Font* font;
 	void load_font();
 	float getModelAngle();
@@ -62,11 +80,12 @@ private:
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);
-	bool freeze = false;
 	float cameraSpeed = 10.0f;
 	float boostBar = 100.0f;
 	int health = 100;
-	
+	int kills = 0;
+	int death = 0;
+	std::string nickname;
 	GLfloat lastX = 640;
 	GLfloat lastY = 480;
 	GLfloat yaw = 180.0f;
@@ -77,7 +96,7 @@ private:
 		//Player* player = (Player*)glfwGetWindowUserPointer(window);
 		//player->updatekey(key, scancode, action, mode);
 	}
-	static void updatemouse(GLFWwindow* window, double xpos, double ypos)\
+	static void updatemouse(GLFWwindow* window, double xpos, double ypos)
 	{
 		Player* player = (Player*)glfwGetWindowUserPointer(window);
 		player->updatemouse(xpos, ypos);

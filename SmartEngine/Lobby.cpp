@@ -11,6 +11,21 @@ bool Lobby::add_player(Player* player)
 	players.push_back(player);
 	return true;
 }
+// Update dead time dead players and respawn if 0
+void Lobby::update_respawn(float elapsed_time)
+{
+    for (auto p : players)
+    {
+        if (p->freeze)
+        {
+            p->dead_time -= elapsed_time;
+            if (p->dead_time <= 0.f)
+            {
+                p->respawn();
+            }
+        }
+    }
+}
 
 // Find player id by bullet object id
 // if false then returned -1
@@ -124,8 +139,7 @@ void Lobby::update_key(int i)
                     }
         }
     }
-    if (glfwGetKey(players[i]->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(players[i]->window, true);
+    
     if (glfwGetMouseButton(players[i]->window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
     {
         if(!players[0]->SoundEngine->isCurrentlyPlaying("sounds/rifle_burstcut.mp3"))
@@ -133,6 +147,8 @@ void Lobby::update_key(int i)
         // ---------------RAYCASTING
         btCollisionWorld::ClosestRayResultCallback raycallback(btVector3(players[i]->getCameraPos().x, players[i]->getCameraPos().y, players[i]->getCameraPos().z), btVector3(players[i]->getCameraLook().x * 10000, players[i]->getCameraLook().y * 10000, players[i]->getCameraLook().z * 10000));
         players[i]->dynamicsWorld->rayTest(btVector3(players[i]->getCameraPos().x, players[i]->getCameraPos().y, players[i]->getCameraPos().z), btVector3(players[i]->getCameraLook().x * 10000, players[i]->getCameraLook().y * 10000, players[i]->getCameraLook().z * 10000), raycallback);
+        players[i]->is_shoot = true;
+
         if (raycallback.hasHit())
         {
             // Find if we hit the player
@@ -141,23 +157,32 @@ void Lobby::update_key(int i)
             {
                 std::cout<<"HIT!\n";
                 int id = find_playerid_by_obj_id(ob1->id);
-                if (id != -1)
-                {
-                    make_damage(id, 10);
+                if (players[id]->get_health() > 0) {
+                    if (id != -1)
+                        make_damage(id, 1);
+                    if (players[id]->freeze) {
+                        players[i]->inc_kills();
+                    }
                 }
-                else
-                {
-                    glm::vec3 look = players[i]->getCameraLook();
-                    ob1->body->applyCentralForce(btVector3(look.x*100, look.y* 100, look.z* 100));
-                }
+                glm::vec3 look = players[i]->getCameraLook();
+                ob1->body->applyCentralForce(btVector3(look.x*100, look.y* 100, look.z* 100));
             }
         }
         //----------------
     }
+    if (glfwGetKey(players[i]->window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+        glfwSetWindowShouldClose(players[i]->window, true);
 }
 // Set to update mouse for only 1 player
 void Lobby::set_update_mouse(int i)
 {
-    players[i]->setupdatemouse();
+    //players[i]->setupdatemouse();
 }
 
+Lobby::Lobby()
+{
+    bullet_shader = new Shader("bullet.vert", "bullet.frag");
+    debug_drawer = new BulletDebugDrawer_OpenGL();
+}
+
+const std::vector<Player*> Lobby::get_players_info() { return players; }

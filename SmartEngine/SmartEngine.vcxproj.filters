@@ -173,6 +173,9 @@
     <ClInclude Include="Font.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="BulletDebugDrawer.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="triangle.vert" />
@@ -192,5 +195,7 @@
     <None Include="cube.frag" />
     <None Include="font.vert" />
     <None Include="font.frag" />
+    <None Include="bullet.vert" />
+    <None Include="bullet.frag" />
   </ItemGroup>
 </Project>
