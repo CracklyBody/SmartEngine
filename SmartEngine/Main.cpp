@@ -10,6 +10,8 @@
 #define GLFW_DLL
 #include <GLFW/glfw3.h>
 #include <stdio.h>
+#include <time.h>
+#include <random>
 // GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -18,9 +20,10 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <bullet/btBulletDynamicsCommon.h>
 // Classes
+#include "Lobby.h"
+//include "BulletSamples.h"
 #include "log.h"
 //#include "Model.h"
-#include "Lobby.h"
 //#include "Player.h"
 #include "Bulletcallback.h"
 #include "keycallback.h"
@@ -43,6 +46,8 @@ GLfloat yaw = -90.0f;
 GLfloat pitch = 0.0f;
 int count = 0;
 
+extern std::vector<bulletObject*> bodies;
+
 int main() {
     // Create sound engine
     irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
@@ -56,7 +61,6 @@ int main() {
         0.0f, 1.0f,  0.0f,
         0.0f, 0.0f,  1.0f
     };
-    std::vector<bulletObject*> bodies;
 
     gl_log("starting GLFW\n%s\n", glfwGetVersionString());
     glfwSetErrorCallback(glfw_error_callback);
@@ -83,8 +87,11 @@ int main() {
     
     //glfwSetWindowSizeCallback(window, window_size_callback);
     Lobby main_lobby;
-    Player player("DADDY",glm::vec3(0.0f, 0.0f, 0.3f),window);
+    Player player("Player",glm::vec3(0.0f, 0.0f, 0.3f));
+    player.window = window;
+    player.net_init();
     player.SoundEngine = SoundEngine;
+    player.set_nickname("Player" + std::to_string(player.id));
     SoundEngine->setSoundVolume(irrklang::ik_f32(0.2f));
     main_lobby.add_player(&player);
     //player.setupdayekey();
@@ -129,9 +136,10 @@ int main() {
     Model m4((char*)"models/guns/m4/m4.obj");
     //Model wall((char*)"models/fallingwall/swall.dae");
     Light light1((char*)"models/cube/cube.obj");
-    Model level((char*)"models/gamelevels/basiclevel.obj");
+    Model level((char*)"models/gamelevels/kurs/newlvl.obj");
     Model cube((char*)"models/acube/cube.obj");
     GameObject* object = new GameObject(); //create model 
+    GameObject* enemy = new GameObject(); //create model 
     // DEPTHMAP LOAD
     DepthMap depthmap;
     cubes.Use();
@@ -192,10 +200,11 @@ int main() {
     //lightc->setCollisionFlags(lightc->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
     //bodies.push_back(new bulletObject(lightc, 1, 1.0, 0.0, 0.0));
     // ADD ANIMATION MODEL
-    object->createGraphicsObject("models/guns/m4.fbx"); //get data from file
+    //object->createGraphicsObject("models/guns/m4.fbx"); //get data from file
+    enemy->createGraphicsObject("models/anim/walk_with_rifle.fbx"); //get data from file
     //object->applyLocalRotation(180, vec3(1, 0, 0)); //there are some problems with loading fbx files. Models could be rotated or scaled. So we rotate it to the normal state
-    object->playAnimation(new Animation("anim", vec2(0, 120), 0.30, 10, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
-
+    //object->playAnimation(new Animation("anim", vec2(0, 120), 0.30, 2, true)); //forcing our model to play the animation (name, frames, speed, priority, loop)
+    enemy->playAnimation(new Animation("mixamorigFBXASC058Hips", vec2(0, 21), 0.30, 10, true));
     lastTime = glfwGetTime();
     float linearveloc = 20.0f;
     // ADD Main Player Model
@@ -214,18 +223,19 @@ int main() {
         player.set_window_pointer();
         main_lobby.set_update_mouse(0);
     }
-    float dummies[] = { 100.f,100.f,10.f,
-                        100.f,100.f,30.f,
-                        300.f,100.f,10.f,
-                        -100.f,100.f,10.f };
+    srand(time(0));
+    float dummies[] = { rand() % -1000,50.f,rand() % 100,
+                        rand() % -1000,50.f,rand() % 100,
+                        rand() % -1000,50.f,rand() % 100,
+                        rand() % -1000,50.f,rand() % 100 };
     // Add some dummies to level
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 1; i++)
     {
         btRigidBody* cube2 = addBox(17.196674f, 60.196674f, 17.196674f, dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2], 10.f, dynamicsWorld);
         cube2->forceActivationState(DISABLE_DEACTIVATION);
         cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
         bulletObject* cubee = new bulletObject(cube2, bodies.size(), 1.0, 0.0, 0.0);
-        Player *new_player = new Player("Dummy" + std::to_string(i),glm::vec3(dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2]),window);
+        Player *new_player = new Player("Dummy" + std::to_string(i),glm::vec3(dummies[i * 3], dummies[i * 3 + 1], dummies[i * 3 + 2]));
         new_player->model = cubee;
         new_player->SoundEngine = SoundEngine;
         new_player->dynamicsWorld = dynamicsWorld;
@@ -234,6 +244,25 @@ int main() {
         cubee->type = 1;
         bodies.push_back(cubee);
         cube2->setUserPointer(bodies[bodies.size() - 1]);
+    }
+    {
+        Player* nep = new Player("NewPlayer#" + std::to_string(1), glm::vec3(0, 150, 0));
+        nep->id = 1;
+        nep->dynamicsWorld = player.dynamicsWorld;
+        nep->create_rigid_body();
+        nep->model->type = 1;
+        irrklang::ISoundEngine* SoundEngine = irrklang::createIrrKlangDevice();
+        SoundEngine->setSoundVolume(irrklang::ik_f32(0.2f));
+
+        nep->SoundEngine = SoundEngine;
+
+        bodies.push_back(nep->model);
+
+        //nep->model = cubee;
+        main_lobby.add_player(nep);
+        nep->id_in_lobby_arr = main_lobby.find_playerid_by_obj_id(nep->model->id);
+
+        nep->model->body->setUserPointer(bodies[bodies.size() - 1]);
     }
     float rotate_x = 0.f;
     float rotate_y = 0.f;
@@ -258,7 +287,7 @@ int main() {
         dynamicsWorld->stepSimulation(1.f / 10.f, 4);
         // Update Keyboard and Camera
         main_lobby.update_key(player.id_in_lobby_arr);
-        main_lobby.update_respawn(player.elapsedtime);
+        //main_lobby.update_respawn(player.elapsedtime);
         player.updateCamPos();
         
         // Start the Dear ImGui frame
@@ -272,7 +301,7 @@ int main() {
         lightProjection = glm::ortho(-1000.0f, 1000.0f, -1000.0f, 1000.0f, near_plane, far_plane);
         lightView = glm::lookAt(depthmap.lightPos, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
         lightSpaceMatrix = lightProjection * lightView;
-
+        
         depthShader.Use();
         depthShader.setMat4("lightSpaceMatrix", lightSpaceMatrix);
 
@@ -374,8 +403,8 @@ int main() {
                 slight.setVec3("lightcolour", glm::vec3(1.0, 1.0, 1.0));
                 //cube.Draw(bodies[1], slight, &player);
             }
-            if (bodies[i]->body->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
-                renderSphere(bodies[i]->body, &cube, nanos, &player);
+            //if (bodies[i]->body->getCollisionShape()->getShapeType() == SPHERE_SHAPE_PROXYTYPE)
+                //renderSphere(bodies[i]->body, &cube, nanos, &player);
             if (bodies[i]->body->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
             {
                 btRigidBody* sphere = bodies[i]->body;
@@ -394,7 +423,7 @@ int main() {
                 view = player.lookAt();
                 cubes.setMat4("view", view);
                 glm::mat4 projection = glm::mat4(1.0f);
-                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 10000.0f);
                 cubes.setMat4("projection", projection);
                 cubes.setMat4("model", trans);
                 cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -422,30 +451,30 @@ int main() {
                 {
                     
                     trans = glm::translate(trans,glm::vec3(0.f,-30.0f,0.f));
-                    trans = glm::scale(trans, glm::vec3(4.2f));
+                    trans = glm::scale(trans, glm::vec3(0.05f));
                     cubes.setMat4("model", trans);
-                    nanosuit.Draw(cubes);     
+                    //nanosuit.Draw(cubes);     
                     //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
-                    /*anim->use();
+                    anim->use();
                     anim->setMat4("view", view);
                     anim->setMat4("projection", projection);
                     anim->setMat4("model", trans);
-                    object->render(anim);*/
+                    enemy->render(anim);
                 }
                 else {
                     /*trans = glm::rotate(trans, glm::radians(rotate_x), glm::vec3(-1.0f, 0.f, 0.f));
                     trans = glm::rotate(trans, glm::radians(rotate_y), glm::vec3(0.f, 1.f, 0.f));
                     trans = glm::rotate(trans, glm::radians(rotate_z), glm::vec3(0.0f, 0.f, 1.f));*/
-                    glm::quat qut(cos(glm::radians(rotate_x / 2)), 0, sin(glm::radians(rotate_y / 2)) * 1, 0);
-                    glm::mat4 qut_mat = glm::mat4_cast(qut);
-                    trans = trans * qut_mat;
-                    trans = glm::translate(trans, glm::vec3(0.f, 0.f, -30.f));
-                    anim->use();
+                    //glm::quat qut(cos(glm::radians(rotate_x / 2)), 0, sin(glm::radians(rotate_y / 2)) * 1, 0);
+                    //glm::mat4 qut_mat = glm::mat4_cast(qut);
+                    //trans = trans * qut_mat;
+                    //trans = glm::translate(trans, glm::vec3(0.f, 0.f, -30.f));
+                    //anim->use();
                     anim->setMat4("view", view);
                     anim->setMat4("projection", projection);
                     anim->setMat4("model", trans);
-                    object->render(anim);
-                    //m4.Draw(cubes);
+                    //object->render(anim);
+                    m4.Draw(cubes);
                 }
                 
             }
@@ -467,7 +496,7 @@ int main() {
                 view = player.lookAt();
                 cubes.setMat4("view", view);
                 glm::mat4 projection = glm::mat4(1.0f);
-                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+                projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 10000.0f);
                 cubes.setMat4("projection", projection);
                 cubes.setMat4("model", trans);
                 cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -477,7 +506,81 @@ int main() {
                 km++;
             }
         }
-        
+        //for (int k = 0; k < main_lobby.players.size(); k++)
+        //{
+        //    if (main_lobby.players[k]->model->body->getCollisionShape()->getShapeType() == BOX_SHAPE_PROXYTYPE)
+        //    {
+        //        btRigidBody* sphere = main_lobby.players[k]->model->body;
+        //        btVector3 extent = ((btBoxShape*)sphere->getCollisionShape())->getHalfExtentsWithoutMargin();
+        //        btTransform t;
+        //        sphere->getMotionState()->getWorldTransform(t);
+        //        float mat[16];
+        //        t.getOpenGLMatrix(mat);
+        //        cubes.Use();
+        //        glm::mat4 trans = glm::make_mat4(mat);
+        //        glm::mat4 view = glm::mat4(1.0f);
+        //        /*if (bodies[i]->hit == true)
+        //            cubes.setVec3("color", glm::vec3(0.0, 1.0, 0.0));
+        //        else
+        //            cubes.setVec3("color", glm::vec3(0.0, 0.0, 1.0));*/
+        //        view = player.lookAt();
+        //        cubes.setMat4("view", view);
+        //        glm::mat4 projection = glm::mat4(1.0f);
+        //        projection = glm::perspective(45.0f, (GLfloat)640 / (GLfloat)480, 0.1f, 1000.0f);
+        //        cubes.setMat4("projection", projection);
+        //        cubes.setMat4("model", trans);
+        //        cubes.setMat4("lightSpaceMatrix", lightSpaceMatrix);
+        //        cubes.setVec3("lightPos", depthmap.lightPos);
+        //        cubes.setVec3("viewPos", player.getCameraPos());
+        //        //cubes.setInt("material.diffuse", 0);
+        //        //cubes.setInt("material.specular", 1);
+        //        //cubes.setVec3("viewPos", player.getCameraPos());
+        //        //cubes.setFloat("material.shininess", 32.0f);
+
+        //        //// directional light
+        //        //cubes.setVec3("dirlight.direction", -0.2f, -1.0f, -0.3f);
+        //        //cubes.setVec3("dirlight.ambient", 0.05f, 0.05f, 0.05f);
+        //        //cubes.setVec3("dirlight.diffuse", 0.4f, 0.4f, 0.4f);
+        //        //cubes.setVec3("dirlight.specular", 0.5f, 0.5f, 0.5f);
+        //        //
+        //        //cubes.setVec3("pointLight[0].position", light1.lightspos);
+        //        //cubes.setVec3("pointLight[0].ambient", 0.05f, 0.05f, 0.05f);
+        //        //cubes.setVec3("pointLight[0].diffuse", 0.8f, 0.8f, 0.8f);
+        //        //cubes.setVec3("pointLight[0].specular", 1.0f, 1.0f, 1.0f);
+        //        //cubes.setFloat("pointLight[0].constant", 1.0f);
+        //        //cubes.setFloat("pointLight[0].linear", 0.09);
+        //        //cubes.setFloat("pointLight[0].quadratic", 0.032);
+        //        if (main_lobby.players[k]->model->type == 1)
+        //        {
+
+        //            trans = glm::translate(trans, glm::vec3(0.f, -30.0f, 0.f));
+        //            trans = glm::scale(trans, glm::vec3(4.2f));
+        //            cubes.setMat4("model", trans);
+        //            nanosuit.Draw(cubes);
+        //            //objectModel = glm::scale(objectModel, glm::vec3(0.1, 0.1, 0.1));
+        //            anim->use();
+        //            anim->setMat4("view", view);
+        //            anim->setMat4("projection", projection);
+        //            anim->setMat4("model", trans);
+        //            //enemy->render(anim);
+        //        }
+        //        //else {
+        //        //    /*trans = glm::rotate(trans, glm::radians(rotate_x), glm::vec3(-1.0f, 0.f, 0.f));
+        //        //    trans = glm::rotate(trans, glm::radians(rotate_y), glm::vec3(0.f, 1.f, 0.f));
+        //        //    trans = glm::rotate(trans, glm::radians(rotate_z), glm::vec3(0.0f, 0.f, 1.f));*/
+        //        //    //glm::quat qut(cos(glm::radians(rotate_x / 2)), 0, sin(glm::radians(rotate_y / 2)) * 1, 0);
+        //        //    //glm::mat4 qut_mat = glm::mat4_cast(qut);
+        //        //    //trans = trans * qut_mat;
+        //        //    //trans = glm::translate(trans, glm::vec3(0.f, 0.f, -30.f));
+        //        //    //anim->use();
+        //        //    anim->setMat4("view", view);
+        //        //    anim->setMat4("projection", projection);
+        //        //    anim->setMat4("model", trans);
+        //        //    //object->render(anim);
+        //        //    m4.Draw(cubes);
+        //        //}
+        //    }
+        //}
         slight.Use();
         glm::mat4 trans = glm::mat4(1.0);
         glm::mat4 view = glm::mat4(1.0f);
@@ -559,7 +662,8 @@ int main() {
         glfwPollEvents();
         player.render_player_info();
         player.draw_lobby_info(main_lobby.get_players_info());
-
+        if (player.winner)
+            player.print_u_win();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
         if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE))

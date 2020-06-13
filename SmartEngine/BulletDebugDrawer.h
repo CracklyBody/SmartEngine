@@ -1,4 +1,8 @@
 #pragma once
+#ifndef BULLETDEBUGDRAWER_H
+#define BULLETDEBUGDRAWER_H
+
+
 // GLEW GLFW
 #define GLEW32_DLL
 #include <GL/glew.h>
@@ -76,3 +80,5 @@ public:
 	GLuint VBO, VAO;
 	Shader * line_shader;
 };
+
+#endif // !BULLETDEBUGDRAWER_H

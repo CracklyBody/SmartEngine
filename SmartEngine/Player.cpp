@@ -2,7 +2,7 @@
 
 const btScalar RADIANS_PER_DEGREE = M_PI / btScalar(180.0);
 
-Player::Player(std::string nickname, glm::vec3 pos, GLFWwindow* window) : nickname(nickname), cameraPos(pos), window(window)
+Player::Player(std::string nickname, glm::vec3 pos) : nickname(nickname), cameraPos(pos)
 {
     load_font();
     bullet_shader = new Shader("bullet.vert", "bullet.frag");
@@ -46,6 +46,8 @@ glm::vec3 Player::getCameraLook()
     return cameraFront;
 }
 
+void Player::net_init() { client = new Client(); }
+
 void Player::updatekey()
 {
     
@@ -72,8 +74,18 @@ void Player::draw_line()
         r_cam.z += 0.5f;
     else
         r_cam.z -= 0.5f;*/
-    debug_drawer->drawLine(btVector3(r_cam.x, r_cam.y, r_cam.z), btVector3(direction.x, direction.y, direction.z), btVector3(1.0f, 1.f, 1.f));
+    //debug_drawer->drawLine(btVector3(r_cam.x, r_cam.y, r_cam.z), btVector3(direction.x, direction.y, direction.z), btVector3(1.0f, 1.f, 1.f));
 }
+
+void Player::create_rigid_body()
+{
+    btRigidBody* cube2 = addBox(17.196674f, 60.196674f, 17.196674f, cameraPos.x, cameraPos.y, cameraPos.z, 10.f, dynamicsWorld);
+    cube2->forceActivationState(DISABLE_DEACTIVATION);
+    cube2->setCollisionFlags(cube2->getCollisionFlags() | btCollisionObject::CF_CUSTOM_MATERIAL_CALLBACK);
+    bulletObject* cubee = new bulletObject(cube2, id, 1.0, 0.0, 0.0);
+    model = cubee;
+}
+
 
 void Player::updateCamPos()
 {
@@ -163,6 +175,8 @@ float Player::calculateVerticalDostance()
     return distanceFromPlayer * sin(glm::radians(-pitch));
 }
 
+void Player::set_nickname(std::string nick) { nickname = nick; }
+
 void Player::make_hit(int damage)
 {
     if (health > 0) {
@@ -197,6 +211,8 @@ void Player::load_font()
     font = new Font();
 }
 
+void Player::send_to_serv(char* mess) { client->sendt(mess); }
+
 void Player::render_player_info()
 {
     
@@ -209,15 +225,33 @@ void Player::render_text(std::string text, GLfloat x, GLfloat y, GLfloat scale, 
     font->render_text(text, x, y, scale, color);
 }
 
-void Player::draw_lobby_info(const std::vector<Player*> players)
+void Player::draw_lobby_info(const std::vector<Player*> ps)
 {
     if (glfwGetKey(window, GLFW_KEY_TAB) == GLFW_PRESS)
     {
-        for (int j = 0; j < players.size(); j++)
+        for (int j = 0; j < ps.size(); j++)
         {
-            render_text(players[j]->get_nickname() + "   " + std::to_string(players[j]->get_kills()) + "   " + std::to_string(players[j]->get_death()), 25.0f, 150.0f-j*20, 0.4f, glm::vec3(1.f, 1.f, 1.f));
+            render_text(ps[j]->get_nickname() + "   " + std::to_string(ps[j]->get_kills()) + "   " + std::to_string(ps[j]->get_death()), 25.0f, 150.0f-j*20, 0.4f, glm::vec3(1.f, 1.f, 1.f));
         }
     }
+}
+void Player::print_u_win()
+{
+    render_text("YOU WIN!!!", 100.f, 240.f , 1.8f, glm::vec3(1.f, 1.f, 1.f));
+}
+
+void Player::reposition_body(btVector3 pos)
+{
+    btTransform transf = model->body->getCenterOfMassTransform();
+    transf.setIdentity();
+    transf.setOrigin(pos);
+    //model->body->setCenterOfMassTransform(transf);
+    model->body->setWorldTransform(transf);
+    model->body->getMotionState()->setWorldTransform(transf);
+
+    model->body->setLinearVelocity(btVector3(0.0f, 0.0f, 0.0f));
+    model->body->setAngularVelocity(btVector3(0.0f, 0.0f, 0.0f));
+    model->body->clearForces();
 }
 
 void Player::respawn()
@@ -234,3 +268,7 @@ void Player::respawn()
 void Player::inc_kills() { kills++; }
 void Player::inc_death() { death++; }
 int Player::get_health() { return health; }
+
+void Player::set_kills(int k) { kills = k; }
+void Player::set_deaths(int d) { death = d; }
+void Player::set_health(int h) { health = h; }

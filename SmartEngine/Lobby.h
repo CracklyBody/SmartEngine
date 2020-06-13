@@ -4,9 +4,10 @@
 
 #include <iostream>
 #include <vector>
-
 #include "Player.h"
-#include "BulletDebugDrawer.h"
+//include "BulletSamples.h"
+//#include "BulletDebugDrawer.h"
+
 
 class Lobby {
 public:
@@ -18,11 +19,12 @@ public:
 	void update_key(int id);
 	void update_respawn(float elapsed_time);
 	void set_update_mouse(int id);
+	void update_info();
 	BulletDebugDrawer_OpenGL* debug_drawer;
 	Shader* bullet_shader;
 	const std::vector<Player*> get_players_info();
-private:
 	// Here we store all players in array
 	std::vector<Player*> players;
+	
 };
 #endif // !LOBBY_H

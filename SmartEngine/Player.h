@@ -1,8 +1,6 @@
 #pragma once
 #ifndef PLAYER_H
 #define PLAYER_H
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -12,22 +10,25 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include "Model.h"
+#include <vector>
+#include "BulletSamples.h"
+//#include "Model.h"
 #include "Font.h"
 #include "BulletDebugDrawer.h"
-
+#include "Client.h"
 // Main player class, has func for update camera and more
 class Player
 {
 public:
-	Player(std::string nickname,glm::vec3 pos, GLFWwindow* window);
+	Player(std::string nickname,glm::vec3 pos);
 	~Player();
 	void setupdayekey();
+	void create_rigid_body();
 	void setupdatemouse();
 	void updateCamPos();
 	void updatekey();
 	void updatemouse(double xpos, double ypos);
-	void draw_lobby_info(const std::vector<Player*> players);
+	void draw_lobby_info(const std::vector<Player*> ps);
 	void make_hit(int damage);
 	glm::vec3 getCameraPos();
 	glm::vec3 getCameraLook();
@@ -55,14 +56,26 @@ public:
 	int get_kills();
 	int get_death();
 	int get_health();
+	void set_kills(int k);
+	void set_deaths(int d);
+	void set_health(int h);
+	void set_nickname(std::string nick);
 	void inc_kills();
 	void inc_death();
+	void send_to_serv(char* mess);
+	void net_init();
+	void reposition_body(btVector3 pos);
+	void print_u_win();
 	std::string get_nickname();
 	float dead_time = 10.f;
 	float jump_elaps = 0.f;
 	bool freeze = false;
 	bool in_jump = false;
 	bool is_shoot = false;
+	bool winner = false;
+	int id = 0;
+	Client* client;
+
 
 private:
 	BulletDebugDrawer_OpenGL* debug_drawer;
@@ -76,7 +89,7 @@ private:
 	float distanceFromPlayer = 0.f;
 	float horizontalDistance = 0.f;
 	float verticalDistance = 0.f;
-	glm::vec3 cameraPos;
+	glm::vec3 cameraPos = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 	glm::vec3 cameraTarget = glm::vec3(0.f, 0.f, 0.f);

@@ -1,7 +1,9 @@
 #pragma once
+#ifndef BULLETCALLBACK_H
+#define BULLETCALLBACK_H
+
 #include <bullet/btBulletDynamicsCommon.h>
 #include <iostream>
-#include "BulletSamples.h"
 
 bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int id1, int index1, const btCollisionObjectWrapper* obj2, int id2, int index2)
 {
@@ -13,3 +15,4 @@ bool callbackFunc(btManifoldPoint& cp, const btCollisionObjectWrapper* obj1, int
 	//std::cout << "collision" << std::endl;
 	return false;
 }
+#endif // BULLETCALLBACK_H
